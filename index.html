@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Storage</title>
+  <link rel="icon" href="favicon.png" type="image/x-icon">
+  <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+  <link rel="stylesheet" href="style.css">
+  <script src="firebase-config.js" defer></script>
+  <script src="firebase.js" defer></script>
+  <script src="script.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+  <div class="app container">
+
+    <div class="breadcrumbs">
+      
+    </div>
+
+    <div class="action-bar">
+      <div class="new-folder">
+        <input type="text" placeholder="New Folder">
+        <button class="button">
+          <i class="bi bi-folder-plus"></i>
+        </button>
+      </div>
+      
+      <label class="file-upload button">
+        <input type="file" name="" id="" style="display: none;" oninput="uploadFile(this.files[0], null)">
+        <i class="bi bi-file-earmark-arrow-up"></i>
+      </label>
+    </div>
+
+    <div class="directory">
+      
+    </div>
+
+  </div>
+</body>
+</html>
