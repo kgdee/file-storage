@@ -79,16 +79,6 @@ async function createFolder(folderName, parentFolderId) {
 }
 
 
-async function deleteFolderDoc(folderId) {
-  try {
-    const folderRef = db.collection("folders").doc(folderId);
-    await folderRef.delete();
-    console.log(`Folder with ID ${folderId} successfully deleted.`);
-  } catch (error) {
-    console.error(error)
-  }
-}
-
 async function deleteFolder(folderId) {
   try {
     const query = db.collection("folders").where("path", "array-contains", folderId)
@@ -104,7 +94,7 @@ async function deleteFolder(folderId) {
     // Delete its files
     deleteFilesInFolder(folderId)
 
-    // Delete this folder
+    // Delete the folder
     deleteFolderDoc(folderId)
 
   } catch (error) {
@@ -121,6 +111,16 @@ async function deleteFilesInFolder(folderId) {
     querySnapshot.forEach(doc => {
       deleteFile(doc.id)
     })
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function deleteFolderDoc(folderId) {
+  try {
+    const folderRef = db.collection("folders").doc(folderId);
+    await folderRef.delete();
+    console.log(`Folder with ID ${folderId} successfully deleted.`);
   } catch (error) {
     console.error(error)
   }

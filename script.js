@@ -120,3 +120,9 @@ document.addEventListener("keydown", function(event) {
     deleteFolder("PwRL4yNdU5W5u8wysoka")
   }
 })
+
+window.addEventListener("error", (event) => {
+  const error = `${event.type}: ${event.message}`
+  console.error(error)
+  alert(error)
+});
