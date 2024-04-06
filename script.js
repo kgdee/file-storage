@@ -3,6 +3,8 @@ const breadcrumbsEl = document.querySelector(".breadcrumbs")
 const directoryEl = document.querySelector(".directory")
 const createFolderForm = document.querySelector(".create-folder")
 const fileUploadInput = document.querySelector(".file-upload input")
+const createTxtModal = document.querySelector(".create-txt-modal")
+const createTxtForm = document.querySelector(".create-txt-modal form")
 
 
 let currentFolder = { id: null, name: "My Drive", path: null, type: "root" }
@@ -36,7 +38,6 @@ function displayFolder(folder) {
       <p class="title">${folder.name}</p>
 
       <div class="options" onclick="stopPropagation(event)">
-        <button><i class="bi bi-cloud-arrow-down"></i></button>
         <button onclick="deleteFolder('${folder.id}')"><i class="bi bi-trash"></i></button>
       </div>
     </div>
@@ -46,9 +47,13 @@ function displayFolder(folder) {
 async function refreshFiles(files) {
   const items = files.folders.concat(files.files)
 
-  directoryEl.innerHTML = items.map(item => (
-    item.type === "folder" ? displayFolder(item) : displayFile(item)
-  )).join(" ")
+  if (items.length > 0) {
+    directoryEl.innerHTML = items.map(item => (
+      item.type === "folder" ? displayFolder(item) : displayFile(item)
+    )).join(" ")
+  } else {
+    directoryEl.innerHTML = `Folder is empty`
+  }
 }
 
 function isImage(filename) {
@@ -62,33 +67,26 @@ async function openFolder(folderId) {
 
   listFiles(folderId, refreshFiles)
 
-  console.log(currentFolder.path)
+  // console.log(currentFolder.path)
   renderBreadcrumbs()
 }
 
 
 // Function to render breadcrumbs
-function renderBreadcrumbs() {
+async function renderBreadcrumbs() {
 
-  breadcrumbsEl.innerHTML = `
-    <span onclick="openFolder(null)">My Drive</span>
+  breadcrumbsEl.innerHTML = `<span onclick="openFolder(null)">My Drive</span>`
 
-    ${currentFolder.type !== "root" ? `
-      ${currentFolder.path.map(folder => `
-        / <span onclick="openFolder('${folder}')">${folder}<span>
-      `).join(" ")}
+  if (currentFolder.type === "root") return
+
+  for (const folderId of currentFolder.path) {
+    const folder = await getFolder(folderId)
     
-      / <span>${currentFolder.name}</span>
-    ` : ""}
-  `
-}
+    breadcrumbsEl.innerHTML += ` / <span onclick="openFolder('${folderId}')">${folder.name}<span>`
+  }
 
-// Example usage
-const currentPath = [
-  { id: 'folder1', name: 'Folder 1' },
-  { id: 'folder2', name: 'Folder 2' },
-  { id: 'folder3', name: 'Folder 3' }
-];
+  breadcrumbsEl.innerHTML += `  / <span>${currentFolder.name}</span>`
+}
 
 
 createFolderForm.addEventListener("submit", function(e) {
@@ -105,21 +103,26 @@ fileUploadInput.addEventListener("input", function() {
 openFolder(null)
 
 
+function openCreateTxtModal() {
+  createTxtModal.classList.toggle("hidden")
+}
 
+createTxtForm.addEventListener("submit", function(e) {
+  e.preventDefault()
 
+  const fileName = createTxtForm.elements['fileName'].value + ".txt"
+  const content = createTxtForm.elements['content'].value
 
-document.addEventListener("keydown", function(event) {
-  if (event.key === " ") {
-    // getFolder("rcQ1Z8LReblD5ZwNEkih")
+  const file = new File([content], fileName, { type: "text/plain" });
 
-    // createFolder("subfolder", currentFolder.id)
+  uploadFile(file, currentFolder.id);
 
-    // const exampleFile = new File(["Hello, World!"], "example.txt", { type: "text/plain" });
-    // uploadFile(exampleFile, null);
+  createTxtForm.reset()
 
-    // deleteFolder("PwRL4yNdU5W5u8wysoka")
-  }
+  openCreateTxtModal()
 })
+
+
 
 window.addEventListener("error", (event) => {
   const error = `${event.type}: ${event.message}`

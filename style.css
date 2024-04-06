@@ -15,6 +15,17 @@
   line-height: 1;
 }
 
+.hidden {
+  display: none !important;
+}
+
+p {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 
 body {
   font-family: 'Poppins', sans-serif;
@@ -25,6 +36,30 @@ body {
   max-width: 1440px;
   margin: auto;
 }
+
+.tooltip {
+  position: relative;
+}
+
+.tooltip .tooltip-text {
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, -110%);
+  background-color: rgba(0, 0, 0, 0.75);
+  color: white;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  width: max-content;
+  max-width: 100px;
+  padding: 4px;
+}
+
+.tooltip:hover .tooltip-text {
+  display: block;
+}
+
 
 .app {
   overflow: hidden;
@@ -76,9 +111,17 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 2px;
+  width: 64px;
+}
+
+.directory .item .icon {
+  width: 100%;
+  height: 64px;
+  object-fit: cover;
 }
 
 .directory .item .title {
+  font-size: 0.8rem;
   color: #333;
 }
 
@@ -103,4 +146,65 @@ body {
 
 .directory .item:hover .options {
   display: flex;
+}
+
+
+
+.create-txt-modal {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+.create-txt-modal .modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 10px;
+  border: 2px solid #bbb;
+}
+
+.create-txt-modal .modal-content .header {
+  margin-bottom: 10px;
+}
+
+.create-txt-modal .modal-content .close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: transparent;
+  font-size: 1.5rem;
+}
+
+.create-txt-modal .modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+.create-txt-modal .modal-content form > * {
+  border: 1px solid #bbb;
+  border-radius: 5px;
+  padding: 5px;
+}
+
+.create-txt-modal .modal-content form textarea {
+  resize: none;
+  height: 200px;
+}
+.create-txt-modal .modal-content form button {
+  padding: 5px;
+  background-color: limegreen;
+  color: white;
+  border: none;
 }

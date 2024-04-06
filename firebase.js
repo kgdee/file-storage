@@ -217,3 +217,11 @@ function listFiles(folderId, callback) {
 //   await listFoldersAndFiles(documentsFolderId);
 // }
 
+
+async function createTxt(data, folderId) {
+
+  const { name, content } = data
+
+  const file = new File([content], `${name}.txt`, { type: "text/plain" });
+  await uploadFile(file, folderId);
+}
