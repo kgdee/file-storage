@@ -89,14 +89,16 @@ body {
   left: 50%;
   bottom: 0;
   transform: translate(-50%, 100%);
-  padding-top: 5px;
+  padding: 5px;
 }
 
-.directory .item .options button {
+.directory .item .options > * {
   font-size: 2rem;
   padding: 5px;
-  border: 1px solid #ccc;
+  border: 1px solid #bbb;
   border-radius: 5px;
+  background-color: transparent;
+  color: #333;
 }
 
 .directory .item:hover .options {

@@ -20,7 +20,7 @@ function displayFile(file) {
       <p class="title">${file.name}</p>
 
       <div class="options" onclick="stopPropagation(event)">
-        <button><i class="bi bi-cloud-arrow-down"></i></button>
+        <a href="${file.url}" download="${file.name}" target="_blank"><i class="bi bi-cloud-arrow-down"></i></a>
         <button onclick="deleteFile('${file.id}')"><i class="bi bi-trash"></i></button>
       </div>
     </div>
