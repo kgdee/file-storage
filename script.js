@@ -117,7 +117,7 @@ document.addEventListener("keydown", function(event) {
     // const exampleFile = new File(["Hello, World!"], "example.txt", { type: "text/plain" });
     // uploadFile(exampleFile, null);
 
-    deleteFolder("PwRL4yNdU5W5u8wysoka")
+    // deleteFolder("PwRL4yNdU5W5u8wysoka")
   }
 })
 
