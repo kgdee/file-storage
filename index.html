@@ -7,7 +7,6 @@
   <link rel="icon" href="favicon.png" type="image/x-icon">
   <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
   <link rel="stylesheet" href="style.css">
-  <script src="firebase-config.js" defer></script>
   <script src="firebase.js" defer></script>
   <script src="script.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
@@ -22,15 +21,15 @@
     </div>
 
     <div class="action-bar">
-      <div class="new-folder">
-        <input type="text" placeholder="New Folder">
+      <form class="create-folder">
+        <input type="text" name="folderName" placeholder="New Folder">
         <button class="button">
           <i class="bi bi-folder-plus"></i>
         </button>
-      </div>
+      </form>
       
       <label class="file-upload button">
-        <input type="file" name="" id="" style="display: none;" oninput="uploadFile(this.files[0], null)">
+        <input type="file" name="" id="" style="display: none;">
         <i class="bi bi-file-earmark-arrow-up"></i>
       </label>
     </div>

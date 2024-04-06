@@ -48,7 +48,7 @@ body {
   margin-bottom: 10px;
 }
 
-.action-bar .new-folder {
+.action-bar .create-folder {
   display: flex;
   align-items: center;
   gap: 5px;
@@ -71,6 +71,7 @@ body {
 }
 
 .directory .item {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -79,4 +80,25 @@ body {
 
 .directory .item .title {
   color: #333;
+}
+
+.directory .item .options {
+  display: none;
+  gap: 5px;
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 100%);
+  padding-top: 5px;
+}
+
+.directory .item .options button {
+  font-size: 2rem;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.directory .item:hover .options {
+  display: flex;
 }

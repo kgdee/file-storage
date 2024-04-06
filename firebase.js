@@ -1,15 +1,15 @@
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-// // Your web app's Firebase configuration
-// const firebaseConfig = {
-//   apiKey: "",
-//   authDomain: "",
-//   projectId: "",
-//   storageBucket: "",
-//   messagingSenderId: "",
-//   appId: ""
-// };
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDfU9hbxkigJ4Ui9K6SrLC2KYTMFwCiMXA",
+  authDomain: "file-storage-1671c.firebaseapp.com",
+  projectId: "file-storage-1671c",
+  storageBucket: "file-storage-1671c.appspot.com",
+  messagingSenderId: "8738223422",
+  appId: "1:8738223422:web:f1177bbdf33caf614be86f"
+};
 
 const app = firebase.initializeApp(firebaseConfig);
 
@@ -61,7 +61,7 @@ async function createFolder(folderName, parentFolderId) {
 
     if (parentFolderId) {
       const parentFolder = await getFolder(parentFolderId)
-      path = [ ...parentFolder.path, { id: parentFolderId, name: parentFolder.name } ]
+      path = [ ...parentFolder.path, parentFolderId ]
     }
 
     const folderRef = await db.collection("folders").add({
@@ -78,21 +78,86 @@ async function createFolder(folderName, parentFolderId) {
   }
 }
 
+
+async function deleteFolderDoc(folderId) {
+  try {
+    const folderRef = db.collection("folders").doc(folderId);
+    await folderRef.delete();
+    console.log(`Folder with ID ${folderId} successfully deleted.`);
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function deleteFolder(folderId) {
+  try {
+    const query = db.collection("folders").where("path", "array-contains", folderId)
+
+    const querySnapshot = await query.get();
+
+    // Delete nested folders and its files
+    querySnapshot.forEach(doc => {
+      deleteFilesInFolder(doc.id)
+      deleteFolderDoc(doc.id)
+    });
+
+    // Delete its files
+    deleteFilesInFolder(folderId)
+
+    // Delete this folder
+    deleteFolderDoc(folderId)
+
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function deleteFilesInFolder(folderId) {
+  try {
+    const query = db.collection("files").where("folder", "==", folderId)
+
+    const querySnapshot = await query.get();
+
+    querySnapshot.forEach(doc => {
+      deleteFile(doc.id)
+    })
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+
 async function uploadFile(file, folderId) {
   try {
-    const fileRef = storage.ref().child(`files/${file.name}`);
-    await fileRef.put(file);
-    const fileUrl = await fileRef.getDownloadURL();
-    await db.collection("files").add({
+    const fileRef = await db.collection("files").add({
       name: file.name,
-      url: fileUrl,
       folder: folderId,
       type: "file",
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+
+    const storageRef = storage.ref().child(`files/${fileRef.id}`);
+    await storageRef.put(file);
+    const fileUrl = await storageRef.getDownloadURL();
+
+    await fileRef.update({ url: fileUrl })
+
     console.log("File uploaded successfully.");
   } catch (error) {
     console.error("Error uploading file: ", error);
+  }
+}
+
+async function deleteFile(fileId) {
+  try {
+    const itemRef = storage.ref().child(`files/${fileId}`)
+    await itemRef.delete()
+
+    const fileRef = db.collection("files").doc(fileId);
+    await fileRef.delete();
+    console.log(`File with ID ${fileId} successfully deleted.`);
+  } catch (error) {
+    console.error(error)
   }
 }
 
@@ -109,8 +174,8 @@ async function uploadFile(file, folderId) {
 
 
 // Function to list folders and files in a specific folder
-function listFoldersAndFiles(folderId, callback) {
-  let result = []
+function listFiles(folderId, callback) {
+  let result = { folders: [], files: [] }
 
   // Cleanup previous listeners
   if (currentListeners.foldersListener) currentListeners.foldersListener()
@@ -120,9 +185,10 @@ function listFoldersAndFiles(folderId, callback) {
     // Listen for changes to the folders collection
     const foldersListener = db.collection("folders").where("parent", "==", folderId)
     .onSnapshot((querySnapshot) => {
+      result.folders = []
       querySnapshot.forEach((doc) => {
         const folderData = doc.data();
-        result.push({ id: doc.id, name: folderData.name, type: folderData.type })
+        result.folders.push({ id: doc.id, name: folderData.name, type: folderData.type })
       });
       callback(result)
     });
@@ -130,9 +196,10 @@ function listFoldersAndFiles(folderId, callback) {
     // Listen for changes to the files collection
     const filesListener = db.collection("files").where("folder", "==", folderId)
     .onSnapshot((querySnapshot) => {
+      result.files = []
       querySnapshot.forEach((doc) => {
         const fileData = doc.data();
-        result.push({ id: doc.id, name: fileData.name, url: fileData.url, type: fileData.type })
+        result.files.push({ id: doc.id, name: fileData.name, url: fileData.url, type: fileData.type })
       });
       callback(result)
     });

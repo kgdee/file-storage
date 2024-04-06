@@ -1,24 +1,54 @@
 const storagePrefix = "file-storage_"
 const breadcrumbsEl = document.querySelector(".breadcrumbs")
 const directoryEl = document.querySelector(".directory")
+const createFolderForm = document.querySelector(".create-folder")
+const fileUploadInput = document.querySelector(".file-upload input")
+
 
 let currentFolder = { id: null, name: "My Drive", path: null, type: "root" }
 
-async function refreshDirectory(items) {
+function stopPropagation(event) {
+  event.stopPropagation()
+}
 
-  directoryEl.innerHTML = items.map(item => {
-    
-    let icon = "images/folder.png"
-    
-    if (item.type === "file") icon = isImage(item.name) ? item.url : "images/file.png"
-    
-    return `
-    <div class="item ${item.type}" ${item.type === "folder" ? `onclick="openFolder('${item.id}')"` : ""}>
+function displayFile(file) {
+  let icon = (isImage(file.name) && file.url) ? file.url : "images/file.png"
+  
+  return `
+    <div class="item file">
       <img src="${icon}" class="icon">
-      <p class="title">${item.name}</p>
+      <p class="title">${file.name}</p>
+
+      <div class="options" onclick="stopPropagation(event)">
+        <button><i class="bi bi-cloud-arrow-down"></i></button>
+        <button onclick="deleteFile('${file.id}')"><i class="bi bi-trash"></i></button>
+      </div>
     </div>
-    `
-  }).join(" ")
+  `
+}
+
+function displayFolder(folder) {
+  let icon = "images/folder.png"
+  
+  return `
+    <div class="item folder" onclick="openFolder('${folder.id}')">
+      <img src="${icon}" class="icon">
+      <p class="title">${folder.name}</p>
+
+      <div class="options" onclick="stopPropagation(event)">
+        <button><i class="bi bi-cloud-arrow-down"></i></button>
+        <button onclick="deleteFolder('${folder.id}')"><i class="bi bi-trash"></i></button>
+      </div>
+    </div>
+  `
+}
+
+async function refreshFiles(files) {
+  const items = files.folders.concat(files.files)
+
+  directoryEl.innerHTML = items.map(item => (
+    item.type === "folder" ? displayFolder(item) : displayFile(item)
+  )).join(" ")
 }
 
 function isImage(filename) {
@@ -30,7 +60,7 @@ function isImage(filename) {
 async function openFolder(folderId) {
   currentFolder = await getFolder(folderId)
 
-  listFoldersAndFiles(folderId, refreshDirectory)
+  listFiles(folderId, refreshFiles)
 
   console.log(currentFolder.path)
   renderBreadcrumbs()
@@ -45,7 +75,7 @@ function renderBreadcrumbs() {
 
     ${currentFolder.type !== "root" ? `
       ${currentFolder.path.map(folder => `
-        / <span onclick="openFolder('${folder.id}')">${folder.name}<span>
+        / <span onclick="openFolder('${folder}')">${folder}<span>
       `).join(" ")}
     
       / <span>${currentFolder.name}</span>
@@ -61,6 +91,16 @@ const currentPath = [
 ];
 
 
+createFolderForm.addEventListener("submit", function(e) {
+  e.preventDefault()
+  createFolder(createFolderForm.elements['folderName'].value, currentFolder.id)
+  createFolderForm.reset()
+})
+
+fileUploadInput.addEventListener("input", function() {
+  uploadFile(fileUploadInput.files[0], currentFolder.id)
+})
+
 
 openFolder(null)
 
@@ -72,9 +112,11 @@ document.addEventListener("keydown", function(event) {
   if (event.key === " ") {
     // getFolder("rcQ1Z8LReblD5ZwNEkih")
 
-    createFolder("subfolder", currentFolder.id)
+    // createFolder("subfolder", currentFolder.id)
 
     // const exampleFile = new File(["Hello, World!"], "example.txt", { type: "text/plain" });
     // uploadFile(exampleFile, null);
+
+    deleteFolder("PwRL4yNdU5W5u8wysoka")
   }
 })
