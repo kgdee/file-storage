@@ -3,6 +3,7 @@ const breadcrumbsEl = document.querySelector(".breadcrumbs")
 const directoryEl = document.querySelector(".directory")
 const createFolderForm = document.querySelector(".create-folder")
 const fileUploadInput = document.querySelector(".file-upload input")
+const progressModal = document.querySelector(".progress-modal")
 const createTxtModal = document.querySelector(".create-txt-modal")
 const createTxtForm = document.querySelector(".create-txt-modal form")
 
@@ -23,7 +24,7 @@ function displayFile(file) {
 
       <div class="options" onclick="stopPropagation(event)">
         <a href="${file.url}" download="${file.name}" target="_blank"><i class="bi bi-cloud-arrow-down"></i></a>
-        <button onclick="deleteFile('${file.id}')"><i class="bi bi-trash"></i></button>
+        <button onclick="deleteFile('${file.id}', showProgressModal)"><i class="bi bi-trash"></i></button>
       </div>
     </div>
   `
@@ -38,7 +39,7 @@ function displayFolder(folder) {
       <p class="title">${folder.name}</p>
 
       <div class="options" onclick="stopPropagation(event)">
-        <button onclick="deleteFolder('${folder.id}')"><i class="bi bi-trash"></i></button>
+        <button onclick="deleteFolder('${folder.id}', showProgressModal)"><i class="bi bi-trash"></i></button>
       </div>
     </div>
   `
@@ -91,17 +92,35 @@ async function renderBreadcrumbs() {
 
 createFolderForm.addEventListener("submit", function(e) {
   e.preventDefault()
-  createFolder(createFolderForm.elements['folderName'].value, currentFolder.id)
+  createFolder(createFolderForm.elements['folderName'].value, currentFolder.id, showProgressModal)
   createFolderForm.reset()
 })
 
 fileUploadInput.addEventListener("input", function() {
-  uploadFile(fileUploadInput.files[0], currentFolder.id)
+  uploadFile(fileUploadInput.files[0], currentFolder.id, showProgressModal)
 })
 
 
 openFolder(null)
 
+
+
+function showProgressModal(progress) {
+
+  const progressEl = document.querySelector(".progress-modal progress")
+  const statusEl = document.querySelector(".progress-modal .status")
+
+  if (typeof progress === 'number' && !isNaN(progress)) {
+    progressModal.classList.remove("hidden")
+    progressEl.value = progress
+    statusEl.innerText = `${Math.round(progress)}%`;
+
+  } else {
+    progressModal.classList.add("hidden")
+    progressEl.value = 0
+    statusEl.innerText = ""
+  }
+}
 
 function openCreateTxtModal() {
   createTxtModal.classList.toggle("hidden")
@@ -110,12 +129,10 @@ function openCreateTxtModal() {
 createTxtForm.addEventListener("submit", function(e) {
   e.preventDefault()
 
-  const fileName = createTxtForm.elements['fileName'].value + ".txt"
+  const name = createTxtForm.elements['name'].value
   const content = createTxtForm.elements['content'].value
 
-  const file = new File([content], fileName, { type: "text/plain" });
-
-  uploadFile(file, currentFolder.id);
+  createTxt({ name: name, content: content }, currentFolder.id, showProgressModal)
 
   createTxtForm.reset()
 

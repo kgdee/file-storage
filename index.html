@@ -46,6 +46,14 @@
       
     </div>
 
+    <div class="progress-modal hidden">
+      <div class="modal-content">
+        <p>Processing...</p>
+        <progress value="50" max="100"></progress>
+        <div class="status">50%</div>
+      </div>
+    </div>
+
     <div class="create-txt-modal hidden" onclick="openCreateTxtModal()">
       <div class="modal-content" onclick="stopPropagation(event)">
         <div class="header">
@@ -53,7 +61,7 @@
           <button class="close" onclick="openCreateTxtModal()"><i class="bi bi-x"></i></button>
         </div>
         <form>
-          <input type="text" name="fileName" placeholder="File name" value="New Text">
+          <input type="text" name="name" placeholder="Name" value="New Text">
           <textarea name="content" placeholder="Enter your text here"></textarea>
           <button>Create</button>
         </form>

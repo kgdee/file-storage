@@ -55,15 +55,16 @@ async function getFolder(folderId) {
   }
 }
 
-async function createFolder(folderName, parentFolderId) {
+async function createFolder(folderName, parentFolderId, callback) {
   try {
+    callback(0)
     let path = []
 
     if (parentFolderId) {
       const parentFolder = await getFolder(parentFolderId)
       path = [ ...parentFolder.path, parentFolderId ]
     }
-
+    callback(50)
     const folderRef = await db.collection("folders").add({
       name: folderName,
       parent: parentFolderId,
@@ -72,30 +73,39 @@ async function createFolder(folderName, parentFolderId) {
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     console.log("Folder created with ID: ", folderRef.id);
-    return folderRef.id;
+    callback(100)
+    setTimeout(()=>callback(null), 500)
+
   } catch (error) {
     console.error("Error creating folder: ", error);
   }
 }
 
 
-async function deleteFolder(folderId) {
+async function deleteFolder(folderId, callback) {
   try {
+    callback(0)
     const query = db.collection("folders").where("path", "array-contains", folderId)
 
     const querySnapshot = await query.get();
-
+    
     // Delete nested folders and its files
-    querySnapshot.forEach(doc => {
-      deleteFilesInFolder(doc.id)
-      deleteFolderDoc(doc.id)
-    });
+    for (let i = 0; i < querySnapshot.size; i++) {
+      const doc = querySnapshot.docs[i]
+      await deleteFilesInFolder(doc.id)
+      await deleteFolderDoc(doc.id)
 
+      callback((90 / querySnapshot.size) * (i + 1))
+    }
+    
     // Delete its files
-    deleteFilesInFolder(folderId)
+    await deleteFilesInFolder(folderId)
 
     // Delete the folder
-    deleteFolderDoc(folderId)
+    await deleteFolderDoc(folderId)
+
+    callback(100)
+    setTimeout(()=>callback(null), 500);
 
   } catch (error) {
     console.error(error)
@@ -109,7 +119,7 @@ async function deleteFilesInFolder(folderId) {
     const querySnapshot = await query.get();
 
     querySnapshot.forEach(doc => {
-      deleteFile(doc.id)
+      deleteFile(doc.id, ()=>{})
     })
   } catch (error) {
     console.error(error)
@@ -127,8 +137,9 @@ async function deleteFolderDoc(folderId) {
 }
 
 
-async function uploadFile(file, folderId) {
+async function uploadFile(file, folderId, callback) {
   try {
+    callback(0)
     const fileRef = await db.collection("files").add({
       name: file.name,
       folder: folderId,
@@ -136,26 +147,44 @@ async function uploadFile(file, folderId) {
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
+
     const storageRef = storage.ref().child(`files/${fileRef.id}`);
+    const task = storageRef.put(file);
+
+    // Update progress bar and progress status
+    task.on('state_changed', 
+      function progress(snapshot) {
+        const percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 90;
+        callback(percentage)
+      }
+    )
+
     await storageRef.put(file);
     const fileUrl = await storageRef.getDownloadURL();
-
+    callback(95)
     await fileRef.update({ url: fileUrl })
+    callback(100)
 
     console.log("File uploaded successfully.");
+    setTimeout(()=>callback(null), 500)
+
   } catch (error) {
     console.error("Error uploading file: ", error);
   }
 }
 
-async function deleteFile(fileId) {
+async function deleteFile(fileId, callback) {
   try {
+    callback(0)
     const itemRef = storage.ref().child(`files/${fileId}`)
     await itemRef.delete()
-
+    callback(50)
     const fileRef = db.collection("files").doc(fileId);
     await fileRef.delete();
     console.log(`File with ID ${fileId} successfully deleted.`);
+    callback(100)
+    setTimeout(()=>callback(null), 500);
+
   } catch (error) {
     console.error(error)
   }
@@ -218,10 +247,14 @@ function listFiles(folderId, callback) {
 // }
 
 
-async function createTxt(data, folderId) {
-
+async function createTxt(data, folderId, callback) {
+  callback(0)
   const { name, content } = data
 
   const file = new File([content], `${name}.txt`, { type: "text/plain" });
-  await uploadFile(file, folderId);
+
+  await uploadFile(file, folderId, ()=>{});
+
+  callback(100)
+  setTimeout(()=>callback(null), 500)
 }
