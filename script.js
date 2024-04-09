@@ -97,7 +97,9 @@ createFolderForm.addEventListener("submit", function(e) {
 })
 
 fileUploadInput.addEventListener("input", function() {
-  uploadFile(fileUploadInput.files[0], currentFolder.id, showProgressModal)
+  const file = fileUploadInput.files[0]
+  if (!file) return
+  uploadFile(file, currentFolder.id, showProgressModal)
 })
 
 
