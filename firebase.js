@@ -137,6 +137,25 @@ async function deleteFolderDoc(folderId) {
 }
 
 
+
+async function getFile(fileId) {
+  try {
+    const docRef = db.collection("files").doc(fileId)
+    const doc = await docRef.get()
+  
+    if (doc.exists) {
+      const docData = doc.data()
+      console.log(docData)
+      return docData
+    }
+  
+    return null 
+
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 async function uploadFile(file, folderId, callback) {
   try {
     callback(0)
@@ -253,8 +272,12 @@ function listFiles(folderId, callback) {
 
 
 async function createTxt(data, folderId, callback) {
-  callback(0)
+  
   const { name, content } = data
+
+  if (!content) return
+
+  callback(0)
 
   const file = new File([content], `${name}.txt`, { type: "text/plain" });
 

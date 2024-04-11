@@ -10,6 +10,10 @@ const createTxtForm = document.querySelector(".create-txt-modal form")
 
 let currentFolder = { id: null, name: "My Drive", path: null, type: "root" }
 
+let items = []
+
+let selectedItem = null
+
 function stopPropagation(event) {
   event.stopPropagation()
 }
@@ -18,14 +22,9 @@ function displayFile(file) {
   let icon = (isImage(file.name) && file.url) ? file.url : "images/file.png"
   
   return `
-    <div class="item file">
+    <div class="item file" onclick="selectItem('${file.id}')" data-id="${file.id}">
       <img src="${icon}" class="icon">
       <p class="title">${file.name}</p>
-
-      <div class="options" onclick="stopPropagation(event)">
-        <a href="${file.url}" download="${file.name}" target="_blank"><i class="bi bi-cloud-arrow-down"></i></a>
-        <button onclick="deleteFile('${file.id}', showProgressModal)"><i class="bi bi-trash"></i></button>
-      </div>
     </div>
   `
 }
@@ -34,19 +33,15 @@ function displayFolder(folder) {
   let icon = "images/folder.png"
   
   return `
-    <div class="item folder" onclick="openFolder('${folder.id}')">
+    <div class="item folder" onclick="selectItem('${folder.id}')" data-id="${folder.id}">
       <img src="${icon}" class="icon">
       <p class="title">${folder.name}</p>
-
-      <div class="options" onclick="stopPropagation(event)">
-        <button onclick="deleteFolder('${folder.id}', showProgressModal)"><i class="bi bi-trash"></i></button>
-      </div>
     </div>
   `
 }
 
 async function refreshFiles(files) {
-  const items = files.folders.concat(files.files)
+  items = files.folders.concat(files.files)
 
   if (items.length > 0) {
     directoryEl.innerHTML = items.map(item => (
@@ -64,12 +59,16 @@ function isImage(filename) {
 }
 
 async function openFolder(folderId) {
+  loading(0)
   currentFolder = await getFolder(folderId)
-
+  loading(50)
   listFiles(folderId, refreshFiles)
 
   // console.log(currentFolder.path)
   renderBreadcrumbs()
+
+  loading(100)
+  setTimeout(()=>loading(null), 500);
 }
 
 
@@ -92,22 +91,63 @@ async function renderBreadcrumbs() {
 
 createFolderForm.addEventListener("submit", function(e) {
   e.preventDefault()
-  createFolder(createFolderForm.elements['folderName'].value, currentFolder.id, showProgressModal)
+  createFolder(createFolderForm.elements['folderName'].value, currentFolder.id, loading)
   createFolderForm.reset()
 })
 
 fileUploadInput.addEventListener("input", function() {
   const file = fileUploadInput.files[0]
   if (!file) return
-  uploadFile(file, currentFolder.id, showProgressModal)
+  uploadFile(file, currentFolder.id, loading)
 })
+
+async function selectItem(itemId) {
+
+  // double click on item
+  if (selectedItem && selectedItem.id === itemId) {
+
+    selectedItem.type === "file" ? downloadItem() : openFolder(itemId)
+
+    return
+  }
+
+  if (selectedItem) {
+    const element = document.querySelector(`[data-id="${selectedItem.id}"]`);
+    element.classList.remove("selected")
+  }
+
+  const item = items.find(item => item.id === itemId)
+  selectedItem = item
+
+  const element = document.querySelector(`[data-id="${selectedItem.id}"]`);
+  element.classList.add("selected")
+}
+
+function downloadItem() {
+  if (!selectedItem) return
+  if (selectedItem.type !== "file") return
+
+  window.open(selectedItem.url, '_blank')
+}
+
+function deleteItem() {
+  if (!selectedItem) return
+
+  if (selectedItem.type === "file") {
+    deleteFile(selectedItem.id, loading)
+  } else {
+    deleteFolder(selectedItem.id, loading)
+  }
+
+  selectedItem = null
+}
 
 
 openFolder(null)
 
 
 
-function showProgressModal(progress) {
+function loading(progress) {
 
   const progressEl = document.querySelector(".progress-modal progress")
   const statusEl = document.querySelector(".progress-modal .status")
@@ -134,13 +174,19 @@ createTxtForm.addEventListener("submit", function(e) {
   const name = createTxtForm.elements['name'].value
   const content = createTxtForm.elements['content'].value
 
-  createTxt({ name: name, content: content }, currentFolder.id, showProgressModal)
+  createTxt({ name: name, content: content }, currentFolder.id, loading)
 
   createTxtForm.reset()
 
   openCreateTxtModal()
 })
 
+
+
+
+// document.addEventListener("keydown", function(event) {
+//   if (event.key === " ") getFile("w7BTG0G5WiCH2v5PpsBI")
+// })
 
 
 window.addEventListener("error", (event) => {

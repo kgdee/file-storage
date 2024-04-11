@@ -103,7 +103,7 @@ body {
 .directory {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 5px;
 }
 
 .directory .item {
@@ -112,11 +112,12 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  width: 64px;
+  width: 90px;
+  padding: 5px;
 }
 
 .directory .item .icon {
-  width: 100%;
+  width: 64px;
   height: 64px;
   object-fit: cover;
 }
@@ -126,27 +127,9 @@ body {
   color: #333;
 }
 
-.directory .item .options {
-  display: none;
-  gap: 5px;
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translate(-50%, 100%);
-  padding: 5px;
-}
-
-.directory .item .options > * {
-  font-size: 2rem;
-  padding: 5px;
-  border: 1px solid #bbb;
+.directory .item.selected {
+  background-color: lightblue;
   border-radius: 5px;
-  background-color: transparent;
-  color: #333;
-}
-
-.directory .item:hover .options {
-  display: flex;
 }
 
 
