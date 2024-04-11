@@ -148,7 +148,7 @@ async function uploadFile(file, folderId, callback) {
     });
 
 
-    const storageRef = storage.ref().child(`files/${fileRef.id}`);
+    const storageRef = storage.ref().child(`files/${fileRef.id}/${file.name}`);
     const task = storageRef.put(file);
 
     // Update progress bar and progress status
@@ -177,7 +177,12 @@ async function deleteFile(fileId, callback) {
   try {
     callback(0)
     const itemRef = storage.ref().child(`files/${fileId}`)
-    await itemRef.delete()
+    const listResult = await itemRef.listAll();
+
+    for (const fileRef of listResult.items) {
+      await fileRef.delete();
+      console.log(`${fileRef.name} deleted successfully`);
+    }
     callback(50)
     const fileRef = db.collection("files").doc(fileId);
     await fileRef.delete();
