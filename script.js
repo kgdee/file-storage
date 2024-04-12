@@ -91,12 +91,6 @@ async function renderBreadcrumbs() {
 }
 
 
-createFolderForm.addEventListener("submit", function(e) {
-  e.preventDefault()
-  createFolder(createFolderForm.elements['folderName'].value, currentFolder.id, loading)
-  createFolderForm.reset()
-})
-
 fileUploadInput.addEventListener("input", function() {
   const file = fileUploadInput.files[0]
   if (!file) return
