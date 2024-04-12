@@ -1,9 +1,11 @@
 const storagePrefix = "file-storage_"
 const breadcrumbsEl = document.querySelector(".breadcrumbs")
 const directoryEl = document.querySelector(".directory")
-const createFolderForm = document.querySelector(".create-folder")
+// const createFolderForm = document.querySelector(".create-folder")
 const fileUploadInput = document.querySelector(".file-upload input")
 const progressModal = document.querySelector(".progress-modal")
+const createFolderModal = document.querySelector(".create-folder-modal")
+const createFolderForm = document.querySelector(".create-folder-modal form")
 const createTxtModal = document.querySelector(".create-txt-modal")
 const createTxtForm = document.querySelector(".create-txt-modal form")
 
@@ -163,6 +165,21 @@ function loading(progress) {
     statusEl.innerText = ""
   }
 }
+
+
+function openCreateFolderModal() {
+  createFolderModal.classList.toggle("hidden")
+}
+
+createFolderForm.addEventListener("submit", function(e) {
+  e.preventDefault()
+
+  createFolder(createFolderForm.elements['folderName'].value, currentFolder.id, loading)
+
+  createFolderForm.reset()
+
+  openCreateFolderModal()
+})
 
 function openCreateTxtModal() {
   createTxtModal.classList.toggle("hidden")

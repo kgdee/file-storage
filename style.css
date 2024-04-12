@@ -83,17 +83,6 @@ body {
   margin-bottom: 10px;
 }
 
-.action-bar .create-folder {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.action-bar input {
-  border-right: 2px solid #ccc;
-  height: 100%;
-}
-
 .action-bar .button {
   background-color: transparent;
   font-size: 1.5rem;
@@ -103,7 +92,6 @@ body {
 .directory {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
 }
 
 .directory .item {
@@ -162,6 +150,62 @@ body {
 }
 
 
+
+.create-folder-modal {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+.create-folder-modal .modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 10px;
+  border: 2px solid #bbb;
+}
+
+.create-folder-modal .modal-content .header {
+  margin-bottom: 10px;
+}
+
+.create-folder-modal .modal-content .close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: transparent;
+  font-size: 1.5rem;
+}
+
+.create-folder-modal .modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+.create-folder-modal .modal-content form > * {
+  border: 1px solid #bbb;
+  border-radius: 5px;
+  padding: 8px;
+}
+
+.create-folder-modal .modal-content form button {
+  background-color: limegreen;
+  color: white;
+  border: none;
+}
+
+
 .create-txt-modal {
   position: fixed;
   top: 0;
@@ -207,16 +251,39 @@ body {
 .create-txt-modal .modal-content form > * {
   border: 1px solid #bbb;
   border-radius: 5px;
-  padding: 5px;
+  padding: 8px;
 }
 
 .create-txt-modal .modal-content form textarea {
   resize: none;
   height: 200px;
 }
+
 .create-txt-modal .modal-content form button {
-  padding: 5px;
   background-color: limegreen;
   color: white;
   border: none;
+}
+
+
+
+
+/* Media query for tablet screens (768px and below) */
+@media (max-width: 768px) {
+  
+}
+
+/* Media query for mobile screens (480px and below) */
+@media (max-width: 480px) {
+
+  .directory .item {
+    width: 25%;
+    min-width: 64px;
+  }
+    
+  .directory .item .icon {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+  }
 }

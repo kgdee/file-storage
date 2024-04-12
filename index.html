@@ -22,12 +22,10 @@
 
     <div class="action-bar">
 
-      <form class="create-folder">
-        <input type="text" name="folderName" placeholder="New Folder">
-        <button class="button">
-          <i class="bi bi-folder-plus"></i>
-        </button>
-      </form>
+      <button class="create-folder button tooltip" onclick="openCreateFolderModal()">
+        <i class="bi bi-folder-plus"></i>
+        <p class="tooltip-text">New folder</p>
+      </button>
       
       <label class="file-upload button tooltip">
         <input type="file" name="" id="" style="display: none;">
@@ -56,6 +54,19 @@
       
     </div>
 
+    <div class="create-folder-modal" onclick="openCreateFolderModal()">
+      <div class="modal-content" onclick="stopPropagation(event)">
+        <div class="header">
+          <p class="title">Create new folder</p>
+          <button class="close" onclick="openCreateFolderModal()"><i class="bi bi-x"></i></button>
+        </div>
+        <form>
+          <input type="text" name="folderName" placeholder="New Folder">
+          <button>Create</button>
+        </form>
+      </div>
+    </div>
+
     <div class="create-txt-modal hidden" onclick="openCreateTxtModal()">
       <div class="modal-content" onclick="stopPropagation(event)">
         <div class="header">
@@ -63,7 +74,7 @@
           <button class="close" onclick="openCreateTxtModal()"><i class="bi bi-x"></i></button>
         </div>
         <form>
-          <input type="text" name="name" placeholder="Name" value="New Text">
+          <input type="text" name="name" placeholder="New Text" value="New Text">
           <textarea name="content" placeholder="Enter your text here"></textarea>
           <button>Create</button>
         </form>
