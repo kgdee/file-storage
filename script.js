@@ -1,207 +1,211 @@
-const storagePrefix = "file-storage_"
-const breadcrumbsEl = document.querySelector(".breadcrumbs")
-const directoryEl = document.querySelector(".directory")
+const storagePrefix = "file-storage_";
+const breadcrumbsEl = document.querySelector(".breadcrumbs");
+const directoryEl = document.querySelector(".directory");
 // const createFolderForm = document.querySelector(".create-folder")
-const fileUploadInput = document.querySelector(".file-upload input")
-const progressModal = document.querySelector(".progress-modal")
-const createFolderModal = document.querySelector(".create-folder-modal")
-const createFolderForm = document.querySelector(".create-folder-modal form")
-const createTxtModal = document.querySelector(".create-txt-modal")
-const createTxtForm = document.querySelector(".create-txt-modal form")
+const fileUploadInput = document.querySelector(".file-upload input");
+const progressModal = document.querySelector(".progress-modal");
+const createFolderModal = document.querySelector(".create-folder-modal");
+const createFolderForm = document.querySelector(".create-folder-modal form");
+const textModal = document.querySelector(".text-modal");
 
+let currentFolder = { id: null, name: "My Drive", path: null, type: "root" };
 
-let currentFolder = { id: null, name: "My Drive", path: null, type: "root" }
+let items = [];
 
-let items = []
-
-let selectedItem = null
+let selectedItem = null;
 
 function stopPropagation(event) {
-  event.stopPropagation()
+  event.stopPropagation();
 }
 
 function displayFile(file) {
-  let icon = (isImage(file.name) && file.url) ? file.url : "images/file.png"
-  
+  let icon = isImage(file.name) && file.url ? file.url : "images/file.png";
+
   return `
     <div class="item file" onclick="selectItem('${file.id}')" data-id="${file.id}">
       <img src="${icon}" class="icon">
       <p class="title">${file.name}</p>
     </div>
-  `
+  `;
 }
 
 function displayFolder(folder) {
-  let icon = "images/folder.png"
-  
+  let icon = "images/folder.png";
+
   return `
     <div class="item folder" onclick="selectItem('${folder.id}')" data-id="${folder.id}">
       <img src="${icon}" class="icon">
       <p class="title">${folder.name}</p>
     </div>
-  `
+  `;
 }
 
 async function refreshFiles(files) {
-  items = files.folders.concat(files.files)
+  items = files.folders.concat(files.files);
 
   if (items.length > 0) {
-    directoryEl.innerHTML = items.map(item => (
-      item.type === "folder" ? displayFolder(item) : displayFile(item)
-    )).join(" ")
+    directoryEl.innerHTML = items.map((item) => (item.type === "folder" ? displayFolder(item) : displayFile(item))).join(" ");
   } else {
-    directoryEl.innerHTML = `Folder is empty`
+    directoryEl.innerHTML = `Folder is empty`;
   }
 }
 
 function isImage(filename) {
-  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.tiff'];
+  const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".svg", ".tiff"];
 
-  return imageExtensions.some(ext => filename.toLowerCase().endsWith(ext));
+  return imageExtensions.some((ext) => filename.toLowerCase().endsWith(ext));
 }
 
 async function openFolder(folderId) {
-  loading(0)
-  currentFolder = await getFolder(folderId)
-  loading(50)
-  listFiles(folderId, refreshFiles)
+  loading(0);
+  currentFolder = await getFolder(folderId);
+  loading(50);
+  listFiles(folderId, refreshFiles);
 
   // console.log(currentFolder.path)
-  renderBreadcrumbs()
+  renderBreadcrumbs();
 
-  loading(100)
-  setTimeout(()=>loading(null), 500);
+  loading(100);
+  setTimeout(() => loading(null), 500);
 }
-
 
 // Function to render breadcrumbs
 async function renderBreadcrumbs() {
+  breadcrumbsEl.innerHTML = `<span onclick="openFolder(null)">My Drive</span>`;
 
-  breadcrumbsEl.innerHTML = `<span onclick="openFolder(null)">My Drive</span>`
-
-  if (currentFolder.type === "root") return
+  if (currentFolder.type === "root") return;
 
   for (const folderId of currentFolder.path) {
-    const folder = await getFolder(folderId)
-    
-    breadcrumbsEl.innerHTML += ` / <span onclick="openFolder('${folderId}')">${folder.name}<span>`
+    const folder = await getFolder(folderId);
+
+    breadcrumbsEl.innerHTML += ` / <span onclick="openFolder('${folderId}')">${folder.name}<span>`;
   }
 
-  breadcrumbsEl.innerHTML += `  / <span>${currentFolder.name}</span>`
+  breadcrumbsEl.innerHTML += `  / <span>${currentFolder.name}</span>`;
 }
 
-
-fileUploadInput.addEventListener("input", function() {
-  const file = fileUploadInput.files[0]
-  if (!file) return
-  uploadFile(file, currentFolder.id, loading)
-})
+fileUploadInput.addEventListener("input", function () {
+  const file = fileUploadInput.files[0];
+  if (!file) return;
+  uploadFile(file, currentFolder.id, loading);
+});
 
 async function selectItem(itemId) {
-
-  // double click on item
+  
   if (selectedItem && selectedItem.id === itemId) {
+    // selectedItem.type === "file" ? downloadItem() : openFolder(itemId)
+    selectedItem.type === "file" ? toggleTextModal("update") : openFolder(itemId);
 
-    selectedItem.type === "file" ? downloadItem() : openFolder(itemId)
-
-    return
+    return;
   }
 
   if (selectedItem) {
-    const element = document.querySelector(`[data-id="${selectedItem.id}"]`);
-    element.classList.remove("selected")
+    const elementToDeselect = document.querySelector(`[data-id="${selectedItem.id}"]`);
+    elementToDeselect.classList.remove("selected");
   }
 
-  const item = items.find(item => item.id === itemId)
-  selectedItem = item
+  const item = items.find((item) => item.id === itemId);
+  selectedItem = item;
 
-  const element = document.querySelector(`[data-id="${selectedItem.id}"]`);
-  element.classList.add("selected")
+  const elementToSelect = document.querySelector(`[data-id="${selectedItem.id}"]`);
+  elementToSelect.classList.add("selected");
 }
 
 function downloadItem() {
-  if (!selectedItem) return
-  if (selectedItem.type !== "file") return
+  if (!selectedItem) return;
+  if (selectedItem.type !== "file") return;
 
-  window.open(selectedItem.url, '_blank')
+  window.open(selectedItem.url, "_blank");
 }
 
 function deleteItem() {
-  if (!selectedItem) return
+  if (!selectedItem) return;
 
   if (selectedItem.type === "file") {
-    deleteFile(selectedItem.id, loading)
+    deleteFile(selectedItem.id, loading);
   } else {
-    deleteFolder(selectedItem.id, loading)
+    deleteFolder(selectedItem.id, loading);
   }
 
-  selectedItem = null
+  selectedItem = null;
 }
 
-
-openFolder(null)
-
-
+openFolder(null);
 
 function loading(progress) {
+  const progressEl = document.querySelector(".progress-modal progress");
+  const statusEl = document.querySelector(".progress-modal .status");
 
-  const progressEl = document.querySelector(".progress-modal progress")
-  const statusEl = document.querySelector(".progress-modal .status")
-
-  if (typeof progress === 'number' && !isNaN(progress)) {
-    progressModal.classList.remove("hidden")
-    progressEl.value = progress
+  if (typeof progress === "number" && !isNaN(progress)) {
+    progressModal.classList.remove("hidden");
+    progressEl.value = progress;
     statusEl.innerText = `${Math.round(progress)}%`;
-
   } else {
-    progressModal.classList.add("hidden")
-    progressEl.value = 0
-    statusEl.innerText = ""
+    progressModal.classList.add("hidden");
+    progressEl.value = 0;
+    statusEl.innerText = "";
   }
 }
 
-
 function openCreateFolderModal() {
-  createFolderModal.classList.toggle("hidden")
+  createFolderModal.classList.toggle("hidden");
 }
 
-createFolderForm.addEventListener("submit", function(e) {
-  e.preventDefault()
+createFolderForm.addEventListener("submit", function (e) {
+  e.preventDefault();
 
-  createFolder(createFolderForm.elements['folderName'].value, currentFolder.id, loading)
+  createFolder(createFolderForm.elements["folderName"].value, currentFolder.id, loading);
 
-  createFolderForm.reset()
+  createFolderForm.reset();
 
-  openCreateFolderModal()
-})
+  openCreateFolderModal();
+});
 
-function openCreateTxtModal() {
-  createTxtModal.classList.toggle("hidden")
+async function toggleTextModal(mode) {
+  textModal.classList.toggle("hidden");
+  const modalTitle = textModal.querySelector(".title");
+  const nameInput = textModal.querySelector(".name-input")
+  const contentInput = textModal.querySelector(".content-input")
+  const submitButton = textModal.querySelector(".submit");
+  modalTitle.textContent = "Create new text"
+  nameInput.value = "New Text"
+  contentInput.value = ""
+  submitButton.textContent = "Create"
+
+  if (!mode) return
+
+  if (mode === "update") {
+    const textName = selectedItem.name.split(".")[0];
+    nameInput.value = textName
+    modalTitle.textContent = `Update ${textName}`;
+    const response = await fetch(selectedItem.url);
+    const textContent = await response.text();
+    contentInput.value = textContent
+    submitButton.textContent = "Update";
+  }
+  
+  submitButton.onclick = ()=>handleText(mode)
 }
 
-createTxtForm.addEventListener("submit", function(e) {
-  e.preventDefault()
+function handleText(mode) {
+  const name = textModal.querySelector(".name-input").value
+  const content = textModal.querySelector(".content-input").value
 
-  const name = createTxtForm.elements['name'].value
-  const content = createTxtForm.elements['content'].value
+  if (mode === "create") {
+    createTxt({ name: name, content: content }, currentFolder.id, loading);
+  } else if (mode === "update") {
+    updateTxt({ name: name, content: content }, selectedItem.id, loading);
+  }
 
-  createTxt({ name: name, content: content }, currentFolder.id, loading)
-
-  createTxtForm.reset()
-
-  openCreateTxtModal()
-})
-
-
-
+  toggleTextModal();
+}
 
 // document.addEventListener("keydown", function(event) {
 //   if (event.key === " ") getFile("w7BTG0G5WiCH2v5PpsBI")
 // })
 
-
 window.addEventListener("error", (event) => {
-  const error = `${event.type}: ${event.message}`
-  console.error(error)
-  alert(error)
+  const error = `${event.type}: ${event.message}`;
+  console.error(error);
+  alert(error);
 });

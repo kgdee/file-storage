@@ -3,12 +3,12 @@
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDfU9hbxkigJ4Ui9K6SrLC2KYTMFwCiMXA",
-  authDomain: "file-storage-1671c.firebaseapp.com",
-  projectId: "file-storage-1671c",
-  storageBucket: "file-storage-1671c.appspot.com",
-  messagingSenderId: "8738223422",
-  appId: "1:8738223422:web:f1177bbdf33caf614be86f"
+  apiKey: "AIzaSyCE0cAed-n8RE14N57HvcNWWv1NhEzpakE",
+  authDomain: "file-storage-fad94.firebaseapp.com",
+  projectId: "file-storage-fad94",
+  storageBucket: "file-storage-fad94.appspot.com",
+  messagingSenderId: "305856790010",
+  appId: "1:305856790010:web:06e57e0606624ae803f843"
 };
 
 const app = firebase.initializeApp(firebaseConfig);
@@ -192,6 +192,42 @@ async function uploadFile(file, folderId, callback) {
   }
 }
 
+async function updateFile(file, fileId, callback) {
+  try {
+    callback(0);
+    
+    const fileRef = db.collection("files").doc(fileId);
+
+    await fileRef.update({
+      name: file.name,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    const storageRef = storage.ref().child(`files/${fileId}/${file.name}`);
+    const task = storageRef.put(file);
+
+    // Update progress bar and progress status
+    task.on('state_changed',
+      function progress(snapshot) {
+        const percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 90;
+        callback(percentage);
+      }
+    );
+
+    await storageRef.put(file);
+    const fileUrl = await storageRef.getDownloadURL();
+    callback(95);
+    await fileRef.update({ url: fileUrl });
+    callback(100);
+
+    console.log("File updated successfully.");
+    setTimeout(() => callback(null), 500);
+
+  } catch (error) {
+    console.error("Error updating file: ", error);
+  }
+}
+
 async function deleteFile(fileId, callback) {
   try {
     callback(0)
@@ -285,4 +321,20 @@ async function createTxt(data, folderId, callback) {
 
   callback(100)
   setTimeout(()=>callback(null), 500)
+}
+
+async function updateTxt(data, fileId, callback) {
+  
+  const { name, content } = data;
+
+  if (!content) return;
+
+  callback(0);
+
+  const file = new File([content], `${name}.txt`, { type: "text/plain" });
+
+  await updateFile(file, fileId, () => {});
+
+  callback(100);
+  setTimeout(() => callback(null), 500);
 }

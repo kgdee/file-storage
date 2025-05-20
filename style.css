@@ -206,7 +206,7 @@ body {
 }
 
 
-.create-txt-modal {
+.text-modal {
   position: fixed;
   top: 0;
   bottom: 0;
@@ -215,7 +215,7 @@ body {
   background-color: rgba(0, 0, 0, 0.25);
 }
 
-.create-txt-modal .modal-content {
+.text-modal .modal-content {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -229,11 +229,11 @@ body {
   border: 2px solid #bbb;
 }
 
-.create-txt-modal .modal-content .header {
+.text-modal .modal-content .header {
   margin-bottom: 10px;
 }
 
-.create-txt-modal .modal-content .close {
+.text-modal .modal-content .close {
   position: absolute;
   top: 5px;
   right: 5px;
@@ -241,25 +241,25 @@ body {
   font-size: 1.5rem;
 }
 
-.create-txt-modal .modal-content form {
+.text-modal .input-group {
   display: flex;
   flex-direction: column;
   gap: 5px;
   width: 100%;
 }
 
-.create-txt-modal .modal-content form > * {
+.text-modal .input-group > * {
   border: 1px solid #bbb;
   border-radius: 5px;
   padding: 8px;
 }
 
-.create-txt-modal .modal-content form textarea {
+.text-modal .input-group textarea {
   resize: none;
   height: 200px;
 }
 
-.create-txt-modal .modal-content form button {
+.text-modal .input-group button {
   background-color: limegreen;
   color: white;
   border: none;
