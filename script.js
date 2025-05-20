@@ -41,6 +41,7 @@ function displayFolder(folder) {
 }
 
 async function refreshFiles(files) {
+  console.log("refresh");
   items = files.folders.concat(files.files);
 
   if (items.length > 0) {
@@ -48,6 +49,8 @@ async function refreshFiles(files) {
   } else {
     directoryEl.innerHTML = `Folder is empty`;
   }
+
+  refreshSelection();
 }
 
 function isImage(filename) {
@@ -91,7 +94,6 @@ fileUploadInput.addEventListener("input", function () {
 });
 
 async function selectItem(itemId) {
-  
   if (selectedItem && selectedItem.id === itemId) {
     // selectedItem.type === "file" ? downloadItem() : openFolder(itemId)
     selectedItem.type === "file" ? toggleTextModal("update") : openFolder(itemId);
@@ -99,13 +101,21 @@ async function selectItem(itemId) {
     return;
   }
 
-  if (selectedItem) {
-    const elementToDeselect = document.querySelector(`[data-id="${selectedItem.id}"]`);
-    elementToDeselect.classList.remove("selected");
-  }
-
   const item = items.find((item) => item.id === itemId);
   selectedItem = item;
+
+  refreshSelection();
+}
+
+function refreshSelection() {
+  const selectedItemEls = document.querySelectorAll(".directory .item.selected")
+  selectedItemEls.forEach((item)=> {
+    item.classList.remove("selected")
+  })
+
+  if (!selectedItem) return;
+  
+  selectedItem = items.find((item) => item.id === selectedItem.id);
 
   const elementToSelect = document.querySelector(`[data-id="${selectedItem.id}"]`);
   elementToSelect.classList.add("selected");
@@ -164,32 +174,32 @@ createFolderForm.addEventListener("submit", function (e) {
 async function toggleTextModal(mode) {
   textModal.classList.toggle("hidden");
   const modalTitle = textModal.querySelector(".title");
-  const nameInput = textModal.querySelector(".name-input")
-  const contentInput = textModal.querySelector(".content-input")
+  const nameInput = textModal.querySelector(".name-input");
+  const contentInput = textModal.querySelector(".content-input");
   const submitButton = textModal.querySelector(".submit");
-  modalTitle.textContent = "Create new text"
-  nameInput.value = "New Text"
-  contentInput.value = ""
-  submitButton.textContent = "Create"
+  modalTitle.textContent = "Create new text";
+  nameInput.value = "New Text";
+  contentInput.value = "";
+  submitButton.textContent = "Create";
 
-  if (!mode) return
+  if (!mode) return;
 
   if (mode === "update") {
     const textName = selectedItem.name.split(".")[0];
-    nameInput.value = textName
+    nameInput.value = textName;
     modalTitle.textContent = `Update ${textName}`;
     const response = await fetch(selectedItem.url);
     const textContent = await response.text();
-    contentInput.value = textContent
+    contentInput.value = textContent;
     submitButton.textContent = "Update";
   }
-  
-  submitButton.onclick = ()=>handleText(mode)
+
+  submitButton.onclick = () => handleText(mode);
 }
 
 function handleText(mode) {
-  const name = textModal.querySelector(".name-input").value
-  const content = textModal.querySelector(".content-input").value
+  const name = textModal.querySelector(".name-input").value;
+  const content = textModal.querySelector(".content-input").value;
 
   if (mode === "create") {
     createTxt({ name: name, content: content }, currentFolder.id, loading);
