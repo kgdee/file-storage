@@ -18,21 +18,6 @@ const storage = firebase.storage();
 
 let currentListeners = {}
 
-// function addData() {
-//   db.collection("users").add({
-//     first: "Ada",
-//     last: "Lovelace2",
-//     born: 1815
-//   })
-//   .then((docRef) => {
-//     console.log("Document written with ID: ", docRef.id);
-//   })
-//   .catch((error) => {
-//     console.error("Error adding document: ", error);
-//   });
-// }
-// addData()
-
 async function getFolder(folderId) {
   if (!folderId) return { id: null, name: "My Drive", path: null, type: "root" }
 
@@ -163,6 +148,7 @@ async function uploadFile(file, folderId, callback) {
       name: file.name,
       folder: folderId,
       type: "file",
+      fileType: file.type,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
@@ -288,7 +274,7 @@ function listFiles(folderId, callback) {
       result.files = []
       querySnapshot.forEach((doc) => {
         const fileData = doc.data();
-        result.files.push({ id: doc.id, name: fileData.name, url: fileData.url, type: fileData.type })
+        result.files.push({ id: doc.id, name: fileData.name, url: fileData.url, type: fileData.type, fileType: fileData.fileType })
       });
       callback(result)
     });

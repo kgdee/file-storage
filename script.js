@@ -41,7 +41,6 @@ function displayFolder(folder) {
 }
 
 async function refreshFiles(files) {
-  console.log("refresh");
   items = files.folders.concat(files.files);
 
   if (items.length > 0) {
@@ -65,7 +64,6 @@ async function openFolder(folderId) {
   loading(50);
   listFiles(folderId, refreshFiles);
 
-  // console.log(currentFolder.path)
   renderBreadcrumbs();
 
   loading(100);
@@ -95,9 +93,11 @@ fileUploadInput.addEventListener("input", function () {
 
 async function selectItem(itemId) {
   if (selectedItem && selectedItem.id === itemId) {
-    // selectedItem.type === "file" ? downloadItem() : openFolder(itemId)
-    selectedItem.type === "file" ? toggleTextModal("update") : openFolder(itemId);
-
+    if (selectedItem.type === "file") {
+      selectedItem.fileType === "text/plain" ? toggleTextModal("update") : downloadItem();
+    } else {
+      openFolder();
+    }
     return;
   }
 
@@ -108,13 +108,13 @@ async function selectItem(itemId) {
 }
 
 function refreshSelection() {
-  const selectedItemEls = document.querySelectorAll(".directory .item.selected")
-  selectedItemEls.forEach((item)=> {
-    item.classList.remove("selected")
-  })
+  const selectedItemEls = document.querySelectorAll(".directory .item.selected");
+  selectedItemEls.forEach((item) => {
+    item.classList.remove("selected");
+  });
 
   if (!selectedItem) return;
-  
+
   selectedItem = items.find((item) => item.id === selectedItem.id);
 
   const elementToSelect = document.querySelector(`[data-id="${selectedItem.id}"]`);
