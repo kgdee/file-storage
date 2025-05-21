@@ -14,12 +14,18 @@ let items = [];
 
 let selectedItem = null;
 
+let darkTheme = JSON.parse(localStorage.getItem("darkTheme")) || false
+
+document.addEventListener("DOMContentLoaded", function() {
+  toggleTheme(null, darkTheme)
+})
+
 function stopPropagation(event) {
   event.stopPropagation();
 }
 
 function displayFile(file) {
-  let icon = getIcon(file)
+  let icon = getIcon(file);
 
   return `
     <div class="item file" onclick="selectItem('${file.id}')" data-id="${file.id}">
@@ -48,13 +54,13 @@ function getIcon(file) {
     case "video/mp4":
     case "video/webm":
     case "video/ogg":
-      icon = "images/file-video.png"
+      icon = "images/file-video.png";
       break;
     case "text/plain":
-      icon = "images/file-text.png"
+      icon = "images/file-text.png";
       break;
     case "text/html":
-      icon = "images/file-internet.png"
+      icon = "images/file-internet.png";
       break;
     default:
       break;
@@ -149,8 +155,8 @@ function refreshSelection() {
   elementToSelect.classList.add("selected");
 }
 
-document.addEventListener('click', (event) => {
-  if (!directoryEl.contains(event.target) || event.target === directoryEl) selectItem(null)
+document.addEventListener("click", (event) => {
+  if (!directoryEl.contains(event.target) || event.target === directoryEl) selectItem(null);
 });
 
 function downloadItem() {
@@ -242,9 +248,12 @@ function handleText(mode) {
   toggleTextModal();
 }
 
-// document.addEventListener("keydown", function(event) {
-//   if (event.key === " ") getFile("w7BTG0G5WiCH2v5PpsBI")
-// })
+function toggleTheme(toggle, force = undefined) {
+  force === undefined ? darkTheme = !darkTheme : darkTheme = force
+  localStorage.setItem("darkTheme", darkTheme)
+  document.body.classList.toggle("dark-theme", darkTheme);
+  if (toggle) toggle.innerHTML = darkTheme ? `<i class="bi bi-sun"></i>` : `<i class="bi bi-moon"></i>`;
+}
 
 window.addEventListener("error", (event) => {
   const error = `${event.type}: ${event.message}`;

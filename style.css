@@ -3,6 +3,12 @@
 /*==================== BOOTSTRAP ICONS ====================*/
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css");
 
+:root {
+  --bg-color: #ffffff;
+  --text-color: #333;
+  --border-color: #ccc;
+  --selection-color: rgba(173, 216, 230, 0.5);
+}
 
 * {
   box-sizing: border-box;
@@ -29,7 +35,16 @@ p {
 
 body {
   font-family: 'Poppins', sans-serif;
-  color: #333;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark-theme {
+  --bg-color: #222;
+  --text-color: #eee;
+  --border-color: #444;
+  --selection-color: rgba(93, 173, 226, 0.5);
 }
 
 .container {
@@ -78,7 +93,7 @@ body {
   display: flex;
   gap: 20px;
   padding: 10px;
-  border: 2px solid #ccc;
+  border: 2px solid var(--border-color);
   border-radius: 5px;
   margin-bottom: 10px;
 }
@@ -86,7 +101,11 @@ body {
 .action-bar .button {
   background-color: transparent;
   font-size: 1.5rem;
-  color: #333;
+  color: var(--text-color);
+}
+
+.action-bar .theme {
+  margin-left: auto;
 }
 
 .directory {
@@ -112,11 +131,11 @@ body {
 
 .directory .item .title {
   font-size: 0.8rem;
-  color: #333;
+  color: var(--text-color);
 }
 
 .directory .item.selected {
-  background-color: lightblue;
+  background-color: var(--selection-color);
   border-radius: 5px;
 }
 
