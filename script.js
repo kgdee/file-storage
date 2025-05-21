@@ -17,7 +17,7 @@ let selectedItem = null;
 let darkTheme = JSON.parse(localStorage.getItem("darkTheme")) || false
 
 document.addEventListener("DOMContentLoaded", function() {
-  toggleTheme(null, darkTheme)
+  toggleTheme(darkTheme)
 })
 
 function stopPropagation(event) {
@@ -248,11 +248,12 @@ function handleText(mode) {
   toggleTextModal();
 }
 
-function toggleTheme(toggle, force = undefined) {
+function toggleTheme(force = undefined) {
+  const toggle = document.querySelector(".action-bar .theme")
   force === undefined ? darkTheme = !darkTheme : darkTheme = force
   localStorage.setItem("darkTheme", darkTheme)
   document.body.classList.toggle("dark-theme", darkTheme);
-  if (toggle) toggle.innerHTML = darkTheme ? `<i class="bi bi-sun"></i>` : `<i class="bi bi-moon"></i>`;
+  toggle.innerHTML = darkTheme ? `<i class="bi bi-sun"></i>` : `<i class="bi bi-moon"></i>`;
 }
 
 window.addEventListener("error", (event) => {
