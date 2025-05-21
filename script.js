@@ -19,7 +19,7 @@ function stopPropagation(event) {
 }
 
 function displayFile(file) {
-  let icon = isImage(file.name) && file.url ? file.url : "images/file.png";
+  let icon = getIcon(file)
 
   return `
     <div class="item file" onclick="selectItem('${file.id}')" data-id="${file.id}">
@@ -27,6 +27,40 @@ function displayFile(file) {
       <p class="title">${file.name}</p>
     </div>
   `;
+}
+
+function getIcon(file) {
+  let icon = "images/file.png";
+
+  switch (file.fileType) {
+    case "audio/mpeg":
+    case "audio/ogg":
+    case "audio/wav":
+    case "audio/webm":
+      icon = "images/file-audio.png";
+      break;
+    case "image/jpeg":
+    case "image/png":
+    case "image/gif":
+    case "image/webp":
+      icon = file.url;
+      break;
+    case "video/mp4":
+    case "video/webm":
+    case "video/ogg":
+      icon = "images/file-video.png"
+      break;
+    case "text/plain":
+      icon = "images/file-text.png"
+      break;
+    case "text/html":
+      icon = "images/file-internet.png"
+      break;
+    default:
+      break;
+  }
+
+  return icon;
 }
 
 function displayFolder(folder) {
@@ -50,12 +84,6 @@ async function refreshFiles(files) {
   }
 
   refreshSelection();
-}
-
-function isImage(filename) {
-  const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".svg", ".tiff"];
-
-  return imageExtensions.some((ext) => filename.toLowerCase().endsWith(ext));
 }
 
 async function openFolder(folderId) {
@@ -102,7 +130,7 @@ async function selectItem(itemId) {
   }
 
   const item = items.find((item) => item.id === itemId);
-  selectedItem = item;
+  selectedItem = item || null;
 
   refreshSelection();
 }
