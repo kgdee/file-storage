@@ -14,11 +14,12 @@ let items = [];
 
 let selectedItem = null;
 
-let darkTheme = JSON.parse(localStorage.getItem("darkTheme")) || false
+let darkTheme = JSON.parse(localStorage.getItem("darkTheme")) || false;
 
-document.addEventListener("DOMContentLoaded", function() {
-  toggleTheme(darkTheme)
-})
+document.addEventListener("DOMContentLoaded", function () {
+  openFolder(null);
+  toggleTheme(darkTheme);
+});
 
 function stopPropagation(event) {
   event.stopPropagation();
@@ -130,7 +131,7 @@ async function selectItem(itemId) {
     if (selectedItem.type === "file") {
       selectedItem.fileType === "text/plain" ? toggleTextModal("update") : downloadItem();
     } else {
-      openFolder();
+      openFolder(itemId);
     }
     return;
   }
@@ -150,7 +151,7 @@ function refreshSelection() {
   if (!selectedItem) return;
 
   selectedItem = items.find((item) => item.id === selectedItem.id);
-
+  if (!selectedItem) return
   const elementToSelect = document.querySelector(`[data-id="${selectedItem.id}"]`);
   elementToSelect.classList.add("selected");
 }
@@ -177,8 +178,6 @@ function deleteItem() {
 
   selectedItem = null;
 }
-
-openFolder(null);
 
 function loading(progress) {
   const progressEl = document.querySelector(".progress-modal progress");
@@ -249,9 +248,9 @@ function handleText(mode) {
 }
 
 function toggleTheme(force = undefined) {
-  const toggle = document.querySelector(".action-bar .theme")
-  force === undefined ? darkTheme = !darkTheme : darkTheme = force
-  localStorage.setItem("darkTheme", darkTheme)
+  const toggle = document.querySelector(".action-bar .theme");
+  force === undefined ? (darkTheme = !darkTheme) : (darkTheme = force);
+  localStorage.setItem("darkTheme", darkTheme);
   document.body.classList.toggle("dark-theme", darkTheme);
   toggle.innerHTML = darkTheme ? `<i class="bi bi-sun"></i>` : `<i class="bi bi-moon"></i>`;
 }

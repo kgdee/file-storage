@@ -19,6 +19,7 @@
   border: none;
   text-decoration: none;
   line-height: 1;
+  color: var(--text-color);
 }
 
 .hidden {
@@ -45,6 +46,10 @@ body.dark-theme {
   --text-color: #eee;
   --border-color: #444;
   --selection-color: rgba(93, 173, 226, 0.5);
+}
+
+input, textarea {
+  background-color: var(--bg-color);
 }
 
 .container {
@@ -87,6 +92,10 @@ body.dark-theme {
 
 .breadcrumbs {
   margin-bottom: 5px;
+}
+
+.breadcrumbs > * {
+  cursor: default;
 }
 
 .action-bar {
@@ -139,7 +148,6 @@ body.dark-theme {
   border-radius: 5px;
 }
 
-
 .progress-modal {
   position: fixed;
   top: 0;
@@ -159,9 +167,9 @@ body.dark-theme {
   gap: 5px;
   width: 300px;
   padding: 10px;
-  background-color: white;
+  background-color: var(--bg-color);
   border-radius: 10px;
-  border: 2px solid #bbb;
+  border: 2px solid var(--border-color);
 }
 
 .progress-modal .modal-content progress {
@@ -188,9 +196,9 @@ body.dark-theme {
   flex-direction: column;
   width: 300px;
   padding: 10px;
-  background-color: white;
+  background-color: var(--bg-color);
   border-radius: 10px;
-  border: 2px solid #bbb;
+  border: 2px solid var(--border-color);
 }
 
 .create-folder-modal .modal-content .header {
@@ -213,7 +221,7 @@ body.dark-theme {
 }
 
 .create-folder-modal .modal-content form > * {
-  border: 1px solid #bbb;
+  border: 1px solid var(--border-color);
   border-radius: 5px;
   padding: 8px;
 }
@@ -243,9 +251,9 @@ body.dark-theme {
   flex-direction: column;
   width: 300px;
   padding: 10px;
-  background-color: white;
+  background-color: var(--bg-color);
   border-radius: 10px;
-  border: 2px solid #bbb;
+  border: 2px solid var(--border-color);
 }
 
 .text-modal .modal-content .header {
@@ -268,7 +276,7 @@ body.dark-theme {
 }
 
 .text-modal .input-group > * {
-  border: 1px solid #bbb;
+  border: 1px solid var(--border-color);
   border-radius: 5px;
   padding: 8px;
 }
