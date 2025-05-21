@@ -149,6 +149,10 @@ function refreshSelection() {
   elementToSelect.classList.add("selected");
 }
 
+document.addEventListener('click', (event) => {
+  if (!directoryEl.contains(event.target) || event.target === directoryEl) selectItem(null)
+});
+
 function downloadItem() {
   if (!selectedItem) return;
   if (selectedItem.type !== "file") return;
