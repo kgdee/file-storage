@@ -81,6 +81,84 @@ input, textarea {
 }
 
 
+
+.modal {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+.modal .modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  padding: 10px;
+  background-color: var(--bg-color);
+  border-radius: 10px;
+  border: 2px solid var(--border-color);
+}
+
+.modal .modal-content .close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: transparent;
+  font-size: 1.5rem;
+}
+
+.modal .actions > * {
+  background-color: #8bc34a;
+  color: white;
+  border: none;
+}
+
+.modal .actions > *:nth-child(2) {
+  background-color: #ff5722;
+}
+
+.modal .modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.modal .modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+.modal .modal-body > * {
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  padding: 8px;
+}
+
+.modal textarea {
+  resize: none;
+  height: 200px;
+}
+
+.modal .actions {
+  display: flex;
+  gap: 5px;
+}
+
+.modal .actions > * {
+  flex: 1;
+  border-radius: 5px;
+  padding: 8px;
+}
+
+
 .app {
   overflow: hidden;
   width: 100vw;
@@ -148,151 +226,14 @@ input, textarea {
   border-radius: 5px;
 }
 
-.progress-modal {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.25);
-}
-
 .progress-modal .modal-content {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
   width: 300px;
-  padding: 10px;
-  background-color: var(--bg-color);
-  border-radius: 10px;
-  border: 2px solid var(--border-color);
 }
 
-.progress-modal .modal-content progress {
+.progress-modal progress {
   width: 100%;
+  background-color: #4caf50;
 }
-
-
-
-.create-folder-modal {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.25);
-}
-
-.create-folder-modal .modal-content {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  width: 300px;
-  padding: 10px;
-  background-color: var(--bg-color);
-  border-radius: 10px;
-  border: 2px solid var(--border-color);
-}
-
-.create-folder-modal .modal-content .header {
-  margin-bottom: 10px;
-}
-
-.create-folder-modal .modal-content .close {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: transparent;
-  font-size: 1.5rem;
-}
-
-.create-folder-modal .modal-content form {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  width: 100%;
-}
-
-.create-folder-modal .modal-content form > * {
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  padding: 8px;
-}
-
-.create-folder-modal .modal-content form button {
-  background-color: limegreen;
-  color: white;
-  border: none;
-}
-
-
-.text-modal {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.25);
-}
-
-.text-modal .modal-content {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  width: 300px;
-  padding: 10px;
-  background-color: var(--bg-color);
-  border-radius: 10px;
-  border: 2px solid var(--border-color);
-}
-
-.text-modal .modal-content .header {
-  margin-bottom: 10px;
-}
-
-.text-modal .modal-content .close {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: transparent;
-  font-size: 1.5rem;
-}
-
-.text-modal .input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  width: 100%;
-}
-
-.text-modal .input-group > * {
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  padding: 8px;
-}
-
-.text-modal .input-group textarea {
-  resize: none;
-  height: 200px;
-}
-
-.text-modal .input-group button {
-  background-color: limegreen;
-  color: white;
-  border: none;
-}
-
-
 
 
 /* Media query for tablet screens (768px and below) */

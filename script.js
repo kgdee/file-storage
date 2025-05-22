@@ -1,11 +1,9 @@
 const storagePrefix = "file-storage_";
 const breadcrumbsEl = document.querySelector(".breadcrumbs");
 const directoryEl = document.querySelector(".directory");
-// const createFolderForm = document.querySelector(".create-folder")
 const fileUploadInput = document.querySelector(".file-upload input");
 const progressModal = document.querySelector(".progress-modal");
-const createFolderModal = document.querySelector(".create-folder-modal");
-const createFolderForm = document.querySelector(".create-folder-modal form");
+const folderModal = document.querySelector(".folder-modal");
 const textModal = document.querySelector(".text-modal");
 
 let currentFolder = { id: null, name: "My Drive", path: null, type: "root" };
@@ -151,7 +149,7 @@ function refreshSelection() {
   if (!selectedItem) return;
 
   selectedItem = items.find((item) => item.id === selectedItem.id);
-  if (!selectedItem) return
+  if (!selectedItem) return;
   const elementToSelect = document.querySelector(`[data-id="${selectedItem.id}"]`);
   elementToSelect.classList.add("selected");
 }
@@ -194,19 +192,18 @@ function loading(progress) {
   }
 }
 
-function openCreateFolderModal() {
-  createFolderModal.classList.toggle("hidden");
+function toggleFolderModal() {
+  folderModal.classList.toggle("hidden");
 }
 
-createFolderForm.addEventListener("submit", function (e) {
-  e.preventDefault();
+function handleCreateFolder() {
+  const nameInput = folderModal.querySelector(".name-input");
+  createFolder(nameInput.value, currentFolder.id, loading);
 
-  createFolder(createFolderForm.elements["folderName"].value, currentFolder.id, loading);
+  nameInput.value = "";
 
-  createFolderForm.reset();
-
-  openCreateFolderModal();
-});
+  toggleFolderModal();
+}
 
 async function toggleTextModal(mode) {
   textModal.classList.toggle("hidden");
@@ -214,10 +211,16 @@ async function toggleTextModal(mode) {
   const nameInput = textModal.querySelector(".name-input");
   const contentInput = textModal.querySelector(".content-input");
   const submitButton = textModal.querySelector(".submit");
+  const copyButton = textModal.querySelector(".copy");
   modalTitle.textContent = "Create new text";
   nameInput.value = "New Text";
   contentInput.value = "";
   submitButton.textContent = "Create";
+  copyButton.textContent = "Paste";
+  copyButton.onclick = async () => {
+    const text = await navigator.clipboard.readText();
+    contentInput.value = text;
+  };
 
   if (!mode) return;
 
@@ -225,10 +228,15 @@ async function toggleTextModal(mode) {
     const textName = selectedItem.name.split(".")[0];
     nameInput.value = textName;
     modalTitle.textContent = `Update ${textName}`;
+    submitButton.textContent = "Update";
+    copyButton.textContent = "Copy";
     const response = await fetch(selectedItem.url);
     const textContent = await response.text();
     contentInput.value = textContent;
-    submitButton.textContent = "Update";
+
+    copyButton.onclick = async () => {
+      await navigator.clipboard.writeText(contentInput.value);
+    }
   }
 
   submitButton.onclick = () => handleText(mode);

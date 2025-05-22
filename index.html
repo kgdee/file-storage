@@ -18,7 +18,7 @@
       <div class="breadcrumbs"></div>
 
       <div class="action-bar">
-        <button class="create-folder button tooltip" onclick="openCreateFolderModal()">
+        <button class="create-folder button tooltip" onclick="toggleFolderModal()">
           <i class="bi bi-folder-plus"></i>
           <p class="tooltip-text">New folder</p>
         </button>
@@ -51,34 +51,39 @@
 
       <div class="directory"></div>
 
-      <div class="create-folder-modal hidden" onclick="openCreateFolderModal()">
+      <div class="folder-modal modal hidden" onclick="toggleFolderModal()">
         <div class="modal-content" onclick="stopPropagation(event)">
           <div class="header">
             <p class="title">Create new folder</p>
-            <button class="close" onclick="openCreateFolderModal()"><i class="bi bi-x"></i></button>
+            <button class="close" onclick="toggleFolderModal()"><i class="bi bi-x"></i></button>
           </div>
-          <form>
-            <input type="text" name="folderName" placeholder="New Folder" />
+          <div class="modal-body">
+            <input class="name-input" type="text" name="folderName" placeholder="New Folder" />
+          </div>
+          <div class="actions">
             <button>Create</button>
-          </form>
+          </div>
         </div>
       </div>
 
-      <div class="text-modal hidden" onclick="toggleTextModal()">
+      <div class="text-modal modal hidden" onclick="toggleTextModal()">
         <div class="modal-content" onclick="stopPropagation(event)">
           <div class="header">
             <p class="title">Create new text</p>
             <button class="close" onclick="toggleTextModal()"><i class="bi bi-x"></i></button>
           </div>
-          <div class="input-group">
+          <div class="modal-body">
             <input class="name-input" type="text" name="name" placeholder="New Text" value="New Text" />
             <textarea class="content-input" name="content" placeholder="Enter your text here"></textarea>
+          </div>
+          <div class="actions">
             <button class="submit">Create</button>
+            <button class="copy">Copy</button>
           </div>
         </div>
       </div>
 
-      <div class="progress-modal hidden">
+      <div class="progress-modal modal hidden">
         <div class="modal-content">
           <p>Processing...</p>
           <progress value="50" max="100"></progress>
