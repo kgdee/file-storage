@@ -1,4 +1,4 @@
-const storagePrefix = "file-storage_";
+const projectName = "file-storage";
 const breadcrumbsEl = document.querySelector(".breadcrumbs");
 const directoryEl = document.querySelector(".directory");
 const fileUploadInput = document.querySelector(".file-upload input");
@@ -12,7 +12,7 @@ let items = [];
 
 let selectedItem = null;
 
-let darkTheme = JSON.parse(localStorage.getItem("darkTheme")) || false;
+let darkTheme = JSON.parse(localStorage.getItem(`${projectName}_darkTheme`)) || false;
 
 document.addEventListener("DOMContentLoaded", function () {
   openFolder(null);
@@ -60,6 +60,17 @@ function getIcon(file) {
       break;
     case "text/html":
       icon = "images/file-internet.png";
+      break;
+    case "application/zip":
+    case "application/x-zip-compressed":
+    case "multipart/x-zip":
+      icon = "images/file-zip.png";
+      break;
+    case "application/vnd.rar":
+    case "application/x-rar-compressed":
+    case "application/rar":
+    case "application/x-compressed":
+      icon = "images/file-rar.png";
       break;
     default:
       break;
@@ -236,7 +247,7 @@ async function toggleTextModal(mode) {
 
     copyButton.onclick = async () => {
       await navigator.clipboard.writeText(contentInput.value);
-    }
+    };
   }
 
   submitButton.onclick = () => handleText(mode);
@@ -258,7 +269,7 @@ function handleText(mode) {
 function toggleTheme(force = undefined) {
   const toggle = document.querySelector(".action-bar .theme");
   force === undefined ? (darkTheme = !darkTheme) : (darkTheme = force);
-  localStorage.setItem("darkTheme", darkTheme);
+  localStorage.setItem(`${projectName}_darkTheme`, darkTheme);
   document.body.classList.toggle("dark-theme", darkTheme);
   toggle.innerHTML = darkTheme ? `<i class="bi bi-sun"></i>` : `<i class="bi bi-moon"></i>`;
 }
