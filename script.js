@@ -6,7 +6,7 @@ const progressModal = document.querySelector(".progress-modal");
 const folderModal = document.querySelector(".folder-modal");
 const textModal = document.querySelector(".text-modal");
 
-let currentFolder = { id: null, name: "My Drive", path: null, type: "root" };
+let currentFolder = { id: null, name: "Public Drive", path: null, type: "root" };
 
 let items = [];
 
@@ -105,7 +105,7 @@ async function openFolder(folderId) {
 
 // Function to render breadcrumbs
 async function renderBreadcrumbs() {
-  breadcrumbsEl.innerHTML = `<span onclick="openFolder(null)">My Drive</span>`;
+  breadcrumbsEl.innerHTML = `<span onclick="openFolder(null)">Public Drive</span>`;
 
   if (currentFolder.type === "root") return;
 
