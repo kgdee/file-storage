@@ -1,5 +1,5 @@
 /*==================== GOOGLE FONTS ====================*/
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 /*==================== BOOTSTRAP ICONS ====================*/
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css");
 
@@ -33,9 +33,8 @@ p {
   text-overflow: ellipsis;
 }
 
-
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
   transition: background-color 0.3s, color 0.3s;
@@ -48,7 +47,8 @@ body.dark-theme {
   --selection-color: rgba(93, 173, 226, 0.5);
 }
 
-input, textarea {
+input,
+textarea {
   background-color: var(--bg-color);
 }
 
@@ -79,8 +79,6 @@ input, textarea {
 .tooltip:hover .tooltip-text {
   display: block;
 }
-
-
 
 .modal {
   position: fixed;
@@ -158,7 +156,6 @@ input, textarea {
   padding: 8px;
 }
 
-
 .app {
   overflow: hidden;
   width: 100vw;
@@ -235,20 +232,20 @@ input, textarea {
   background-color: #4caf50;
 }
 
-
 /* Media query for tablet screens (768px and below) */
 @media (max-width: 768px) {
-  
+  .tooltip:hover .tooltip-text {
+    display: none;
+  }
 }
 
 /* Media query for mobile screens (480px and below) */
 @media (max-width: 480px) {
-
   .directory .item {
     width: 25%;
     min-width: 64px;
   }
-    
+
   .directory .item .icon {
     width: 64px;
     height: 64px;
