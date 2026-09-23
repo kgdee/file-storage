@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>File Storage</title>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link href="vendor/bootstrap-icons-1.13.1/bootstrap-icons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/main.css" />
+    <script src="vendor/firebasejs-10.10.0/firebase-app-compat.js" defer></script>
+    <script src="vendor/firebasejs-10.10.0/firebase-firestore-compat.js" defer></script>
+    <script src="js/constants.js" defer></script>
+    <script src="js/firebase.js" defer></script>
+    <script src="js/utils.js" defer></script>
+    <script src="js/main.js" defer></script>
+    <script src="js/itemModal.js" defer></script>
+    <script src="js/confirmModal.js" defer></script>
+    <script src="js/searchBar.js" defer></script>
+    <script src="js/toast.js" defer></script>
+  </head>
+  <body class="dark-theme drop-zone">
+    <div class="app container">
+      <header class="navbar">
+        <div class="main-content">
+          <div class="logo"><img src="assets/images/logo.png"> Storage</div>
+
+          <div class="actions">
+            <label class="search search-box">
+              <input type="text" oninput="SearchBar.search(event.target.value)" placeholder="Type to search..." />
+              <div class="clear" onclick="SearchBar.clear()">
+                <i class="bi bi-search"></i>
+              </div>
+            </label>
+
+            <button class="search-btn" onclick="SearchBar.toggle()">
+              <i class="bi bi-search"></i>
+            </button>
+
+            <button class="settings" onclick="toggleModal('settings-modal')">
+              <i class="bi bi-sliders2"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="search search-bar">
+          <button class="exit" onclick="SearchBar.toggle()">
+            <i class="bi bi-arrow-left"></i>
+          </button>
+          <label class="search-box">
+            <input type="text" oninput="SearchBar.search(event.target.value)" placeholder="Type to search..." />
+          </label>
+          <button onclick="SearchBar.clear()" class="clear">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <div class="breadcrumbs"></div>
+
+        <div class="action-bar">
+          <button class="edit-item" onclick="editItem()">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="delete-item" onclick="deleteItem()">
+            <i class="bi bi-trash"></i>
+          </button>
+          <label class="upload-files">
+            <i class="bi bi-file-earmark-arrow-up"></i>
+            <input type="file" accept="text/*" oninput="uploadFiles(this.files)" multiple hidden />
+          </label>
+          <button class="download-text" onclick="downloadItem()">
+            <i class="bi bi-file-earmark-arrow-down"></i>
+          </button>
+        </div>
+
+        <div class="items-grid"></div>
+
+        <!-- Create modal -->
+        <div class="create-modal menu-modal modal hidden" onclick="toggleModal('create-modal', false)">
+          <div class="modal-content" onclick="stopPropagation(event)">
+            <button class="close" onclick="toggleModal('create-modal')">
+              <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="header">
+              <div class="title">Add item</div>
+            </div>
+
+            <div class="item create-shortcut" onclick="ItemModal.openCreate('shortcut')">
+              <i class="bi bi-plus-circle"></i>
+              <div class="label">New shortcut</div>
+              <div class="arrow">›</div>
+            </div>
+
+            <div class="item create-text" onclick="ItemModal.openCreate('text')">
+              <i class="bi bi-file-earmark-plus"></i>
+              <div class="label">New text</div>
+              <div class="arrow">›</div>
+            </div>
+
+            <div class="item create-folder" onclick="ItemModal.openCreate('folder')">
+              <i class="bi bi-folder-plus"></i>
+              <div class="label">New folder</div>
+              <div class="arrow">›</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item modal -->
+        <div class="item-modal modal hidden" onclick="ItemModal.close()">
+          <div class="modal-content" onclick="stopPropagation(event)">
+            <button class="close" onclick="ItemModal.close()">
+              <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="title">Create new item</div>
+
+            <div class="input-group">
+              <label class="icon-input">
+                <img src="assets/images/file-text.png" />
+                <input type="file" class="hidden" accept="image/*" />
+              </label>
+
+              <input class="name-input" type="text" placeholder="Item name" />
+            </div>
+
+            <input class="url-input" type="text" placeholder="Item url" />
+
+            <textarea spellcheck="false" class="content-input" placeholder="Enter your text here"></textarea>
+
+            <div class="actions">
+              <button class="button listen-btn" onclick="ItemModal.listenText()"><i class="bi bi-volume-up"></i> Listen</button>
+              <button class="button copy-btn" onclick="ItemModal.copyText()"><i class="bi bi-copy"></i> Copy</button>
+              <button class="button submit-btn"><i class="bi bi-check2"></i> Submit</button>
+              <button class="button delete-btn" onclick="deleteItem()"><i class="bi bi-trash"></i> Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings modal -->
+        <div class="settings-modal menu-modal modal hidden" onclick="toggleModal('settings-modal', false)">
+          <div class="container">
+            <div class="modal-content" onclick="stopPropagation(event)">
+              <button class="close" onclick="toggleModal('settings-modal', false)">
+                <i class="bi bi-x-lg"></i>
+              </button>
+              <div class="header">
+                <div class="title">Settings</div>
+                <div class="subtitle">Customize your experience</div>
+              </div>
+
+              <label class="item">
+                <i class="bi bi-image"></i>
+
+                <div class="label">
+                  Wallpaper
+                  <span> Change your background </span>
+                </div>
+
+                <div class="arrow">›</div>
+                <input type="file" accept="image/*" hidden onchange="changeWallpaper(this.files[0])" />
+              </label>
+
+              <label class="item">
+                <i class="bi bi-image"></i>
+
+                <div class="label">
+                  Logo
+                  <span>Change the main logo</span>
+                </div>
+
+                <div class="arrow">›</div>
+                <input type="file" accept="image/*" hidden onchange="changeLogo(this.files[0])" />
+              </label>
+
+              <label class="item">
+                <i class="bi bi-tools"></i>
+
+                <div class="label">
+                  Editor UI
+                  <span class="action-bar-desc">Enabled</span>
+                </div>
+
+                <label class="toggle">
+                  <input class="action-bar-checkbox" type="checkbox" onchange="toggleActions()" />
+                  <span class="slider"></span>
+                </label>
+              </label>
+
+              <label class="item">
+                <i class="bi bi-moon"></i>
+
+                <div class="label">
+                  Dark theme
+                  <span class="theme-desc" id="themeText"> Enabled </span>
+                </div>
+
+                <label class="toggle">
+                  <input class="theme-checkbox" type="checkbox" onchange="toggleTheme()" />
+                  <span class="slider"></span>
+                </label>
+              </label>
+
+              <label class="item margin">
+                <i class="bi bi-arrows-vertical"></i>
+
+                <div class="label">
+                  Margin
+                  <span class="theme-desc" id="themeText">Items margin</span>
+                </div>
+
+                <input type="number" min="0" max="500" onchange="changeMargin(this.value)" onfocus="this.select()" />
+              </label>
+
+              <label class="item import">
+                <i class="bi bi-box-arrow-in-down"></i>
+
+                <div class="label">
+                  Import
+                  <span> Load your saved items </span>
+                </div>
+
+                <div class="arrow">›</div>
+                <input type="file" accept=".json" hidden onchange="importData(this.files[0])" />
+              </label>
+
+              <div class="item export" onclick="exportData()">
+                <i class="bi bi-box-arrow-up"></i>
+                <div class="label">
+                  Export
+                  <span> Save your items </span>
+                </div>
+
+                <div class="arrow">›</div>
+              </div>
+
+              <div class="item reset-settings" onclick="resetSettings()">
+                <i class="bi bi-arrow-counterclockwise"></i>
+                <div class="label">
+                  Reset settings
+                  <span> Restore to default settings </span>
+                </div>
+
+                <div class="arrow">›</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Confirm modal -->
+        <div class="confirm-modal modal hidden" onclick="ConfirmModal.close()">
+          <div class="modal-content" onclick="stopPropagation(event)">
+            <button class="close" onclick="ConfirmModal.close()">
+              <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="title">Delete item</div>
+            <div class="msg">Are you sure you want to delete "item"</div>
+
+            <div class="actions">
+              <button class="button cancel" onclick="ConfirmModal.close()">Cancel</button>
+              <button class="button confirm" onclick="ConfirmModal.close(true)">Confirm</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="toast hidden"></div>
+      </main>
+
+      <div class="drop-modal">
+        <div class="msg-box">Upload a text file</div>
+      </div>
+    </div>
+  </body>
+</html>
