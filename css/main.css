@@ -237,19 +237,22 @@ main {
   overflow-x: auto;
   gap: 5px;
   cursor: pointer;
-  padding: 5px 0;
+  padding: 5px 10px;
   width: min-content;
   max-width: 100%;
   height: min-content;
   min-height: 30px;
-  border-bottom: 1px solid var(--border-color);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
 }
 
 .breadcrumbs * {
+  min-width: 80px;
   background-color: transparent;
   color: var(--text-color);
   font-size: 1rem;
   white-space: nowrap;
+  text-align: center;
 }
 
 .search-bar {

@@ -38,7 +38,7 @@ async function getFolder(folderId) {
   }
 }
 
-async function createFolder(folderName, parentFolderId) {
+async function createFolder(folder, parentFolderId) {
   try {
     loading(0);
     let path = [];
@@ -47,19 +47,41 @@ async function createFolder(folderName, parentFolderId) {
       const parentFolder = await getFolder(parentFolderId);
       path = [...parentFolder.path, parentFolderId];
     }
+
     loading(50);
+
     const folderRef = await db.collection("folders").add({
-      name: folderName,
+      name: folder.name,
+      icon: folder.icon ? compressImageFile(folder.icon, 32) : null,
       parent: parentFolderId,
       path: path,
       type: "folder",
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
-    console.log("Folder created with ID: ", folderRef.id);
+    console.log("Folder created successfully.");
     loading(100);
     setTimeout(() => loading(null), 500);
   } catch (error) {
     console.error("Error creating folder: ", error);
+  }
+}
+
+async function updateFolder(folderId, folder) {
+  try {
+    loading(0);
+
+    const folderRef = db.collection("files").doc(folderId);
+
+    await folderRef.update({
+      name: folder.name,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+
+    loading(100);
+    console.log("Folder updated successfully.");
+    setTimeout(() => loading(null), 500);
+  } catch (error) {
+    console.error("Error updating file: ", error);
   }
 }
 
@@ -123,10 +145,12 @@ async function uploadFile(file, folderId) {
   try {
     loading(0);
 
+    const content = file.type.startsWith("text/") ? await file.text() : await getFileDataUrl(file);
+
     const fileRef = await db.collection("files").add({
       name: file.name,
       type: "file",
-      content: await getFileDataUrl(file),
+      content: content,
       folder: folderId,
       fileType: file.type,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -140,7 +164,7 @@ async function uploadFile(file, folderId) {
   }
 }
 
-async function updateFile(file, fileId) {
+async function updateFile(fileId, file) {
   try {
     loading(0);
 
@@ -205,7 +229,7 @@ function listFiles(folderId, callback) {
         result.folders = [];
         querySnapshot.forEach((doc) => {
           const folderData = doc.data();
-          result.folders.push({ id: doc.id, name: folderData.name, type: folderData.type });
+          result.folders.push({ id: doc.id, ...folderData });
         });
         callback(result);
       });
@@ -218,7 +242,7 @@ function listFiles(folderId, callback) {
         result.files = [];
         querySnapshot.forEach((doc) => {
           const fileData = doc.data();
-          result.files.push({ id: doc.id, name: fileData.name, url: fileData.url, type: fileData.type, fileType: fileData.fileType });
+          result.files.push({ id: doc.id, ...fileData });
         });
         callback(result);
       });
@@ -251,8 +275,40 @@ async function updateTxt(fileId, data) {
 
   const file = new File([content], `${name}.txt`, { type: "text/plain" });
 
-  await updateFile(file, fileId, () => {});
+  await updateFile(fileId, file, () => {});
 
   loading(100);
   setTimeout(() => loading(null), 500);
+}
+
+async function compressImageFile(file, maxSize = 128) {
+  const dataUrl = await getFileDataUrl(file);
+  const img = await loadImage(dataUrl);
+
+  let width = img.width;
+  let height = img.height;
+
+  if (width > height) {
+    if (width > maxSize) {
+      height = Math.round((height * maxSize) / width);
+      width = maxSize;
+    }
+  } else {
+    if (height > maxSize) {
+      width = Math.round((width * maxSize) / height);
+      height = maxSize;
+    }
+  }
+
+  // Draw on standard HTML canvas
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(img, 0, 0, width, height);
+
+  // Return Data URL (base64 string) directly
+  const mimeType = file?.type || file?.mimeType || "image/png";
+  return canvas.toDataURL(mimeType);
 }

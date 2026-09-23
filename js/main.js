@@ -5,9 +5,10 @@ const breadcrumbsEl = document.querySelector(".breadcrumbs");
 const actionsModal = document.querySelector(".create-modal");
 const settingsModal = document.querySelector(".settings-modal");
 const marginInput = settingsModal.querySelector(".item.margin input");
+const folderModal = document.querySelector(".folder-modal")
 
 let currentItems = [];
-let currentFolder = ROOT_FOLDER;
+let currentItem = ROOT_FOLDER;
 let darkTheme = load("darkTheme", true);
 let selectedItem = null;
 let isActionsHidden = load("isActionsHidden", false);
@@ -27,13 +28,13 @@ async function uploadFiles(files) {
   files = Array.from(files);
 
   for (let i = 0; i < files.length; i++) {
-    await uploadFile(files[i], currentFolder.id);
+    await uploadFile(files[i], currentItem.id);
   }
 }
 
 async function openFolder(folderId) {
   loading(0);
-  currentFolder = await getFolder(folderId);
+  currentItem = await getFolder(folderId);
   loading(50);
   listFiles(folderId, setItems);
 
@@ -149,7 +150,7 @@ function createItemName(baseName) {
   do {
     name = `${baseName + (count > 1 ? ` (${count})` : "")}`;
     count++;
-  } while (currentItems.some((item) => item.parentId === currentFolder.id && item.name === name));
+  } while (currentItems.some((item) => item.parentId === currentItem.id && item.name === name));
   return name;
 }
 
@@ -164,17 +165,17 @@ function toggleTheme(force = undefined) {
 }
 
 async function displayBreadcrumbs() {
-  breadcrumbsEl.innerHTML = `<span onclick="openFolder(null)">Public Drive</span>`;
+  breadcrumbsEl.innerHTML = `<span onclick="openFolder(null)">Root</span>`;
 
-  if (currentFolder.type === "root") return;
+  if (currentItem.type === "root") return;
 
-  for (const folderId of currentFolder.path) {
+  for (const folderId of currentItem.path) {
     const folder = await getFolder(folderId);
 
     breadcrumbsEl.innerHTML += ` / <span onclick="openFolder('${folderId}')">${folder.name}<span>`;
   }
 
-  breadcrumbsEl.innerHTML += `  / <span>${currentFolder.name}</span>`;
+  breadcrumbsEl.innerHTML += `  / <span>${currentItem.name}</span>`;
   breadcrumbsEl.scrollLeft = breadcrumbsEl.scrollWidth;
 }
 
@@ -239,6 +240,10 @@ function getItemIcon(item) {
   if (fileType.startsWith("application/vnd.rar")) return "assets/images/file-rar.png";
 
   return "assets/images/file.png";
+}
+
+function toggleFolderModal() {
+  folderModal.classList.toggle("hidden")
 }
 
 const keyActions = {

@@ -93,3 +93,21 @@ function toggleFullscreen(force) {
     document.documentElement.requestFullscreen();
   }
 }
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("Failed to load image file."));
+    img.src = src;
+  });
+}
+
+function canvasToBlob(canvas, mimeType) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error("Canvas export to Blob failed."));
+    }, mimeType);
+  });
+}
