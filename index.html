@@ -13,7 +13,7 @@
     <script src="js/firebase.js" defer></script>
     <script src="js/utils.js" defer></script>
     <script src="js/main.js" defer></script>
-    <script src="js/itemModal.js" defer></script>
+    <script src="js/textModal.js" defer></script>
     <script src="js/confirmModal.js" defer></script>
     <script src="js/searchBar.js" defer></script>
     <script src="js/toast.js" defer></script>
@@ -106,13 +106,13 @@
           </div>
         </div>
 
-        <!-- Item modal -->
-        <div class="item-modal modal hidden" onclick="ItemModal.close()">
+        <!-- Folder modal -->
+        <div class="item-modal folder-modal modal hidden" onclick="toggleFolderModal()">
           <div class="modal-content" onclick="stopPropagation(event)">
-            <button class="close" onclick="ItemModal.close()">
+            <button class="close" onclick="toggleFolderModal()">
               <i class="bi bi-x-lg"></i>
             </button>
-            <div class="title">Create new item</div>
+            <div class="title">Create new folder</div>
 
             <div class="input-group">
               <label class="icon-input">
@@ -123,7 +123,29 @@
               <input class="name-input" type="text" placeholder="Item name" />
             </div>
 
-            <input class="url-input" type="text" placeholder="Item url" />
+            <div class="actions">
+              <button class="button submit-btn"><i class="bi bi-check2"></i> Submit</button>
+              <button class="button delete-btn" onclick="deleteItem()"><i class="bi bi-trash"></i> Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text modal -->
+        <div class="item-modal text-modal modal hidden" onclick="TextModal.close()">
+          <div class="modal-content" onclick="stopPropagation(event)">
+            <button class="close" onclick="TextModal.close()">
+              <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="title">Create new text</div>
+
+            <div class="input-group">
+              <label class="icon-input">
+                <img src="assets/images/file-text.png" />
+                <input type="file" class="hidden" accept="image/*" />
+              </label>
+
+              <input class="name-input" type="text" placeholder="Item name" />
+            </div>
 
             <textarea spellcheck="false" class="content-input" placeholder="Enter your text here"></textarea>
 

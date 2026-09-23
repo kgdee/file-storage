@@ -354,14 +354,6 @@ main {
   object-fit: contain;
 }
 
-.item-modal .url-input {
-  padding: 5px;
-  background-color: transparent;
-  color: var(--text-color);
-  border: none;
-  border-bottom: 1px solid var(--border-color);
-}
-
 .item-modal .content-input {
   flex: 1;
   resize: none;

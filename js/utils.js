@@ -52,15 +52,15 @@ function getFileText(file) {
 function getFileExtension(file) {
   const fileName = file.name;
   const lastDot = fileName.lastIndexOf(".");
-  
+
   return lastDot === -1 ? "" : fileName.slice(lastDot);
 }
 
 function getFileName(file) {
-  const fileName = file.name
-  const lastDotIndex = fileName.lastIndexOf('.');
+  const fileName = file.name;
+  const lastDotIndex = fileName.lastIndexOf(".");
   if (lastDotIndex <= 0) return fileName;
-  
+
   return fileName.slice(0, lastDotIndex);
 }
 

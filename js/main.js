@@ -1,5 +1,4 @@
 const dropZone = document.querySelector(".drop-zone");
-const navbar = document.querySelector(".navbar");
 const actionBar = document.querySelector(".action-bar");
 const itemsGrid = document.querySelector(".items-grid");
 const breadcrumbsEl = document.querySelector(".breadcrumbs");
@@ -28,15 +27,15 @@ async function uploadFiles(files) {
   files = Array.from(files);
 
   for (let i = 0; i < files.length; i++) {
-    await uploadFile(files[i], currentFolder.id, loading)
+    await uploadFile(files[i], currentFolder.id);
   }
-};
+}
 
 async function openFolder(folderId) {
   loading(0);
   currentFolder = await getFolder(folderId);
   loading(50);
-  listFiles(folderId, displayItems);
+  listFiles(folderId, setItems);
 
   displayBreadcrumbs();
 
@@ -44,15 +43,13 @@ async function openFolder(folderId) {
   setTimeout(() => loading(null), 500);
 }
 
-function loading() {
-
-}
+function loading() {}
 
 function getFileHTML(file) {
-  let icon = getIcon(file);
+  let icon = getItemIcon(file);
 
   return `
-    <div class="item file" onclick="selectItem('${file.id}')" data-id="${file.id}">
+    <div class="item file" onclick="handleItemClick('${file.id}')" data-id="${file.id}">
       <img src="${icon}" class="icon">
       <p class="title">${file.name}</p>
     </div>
@@ -63,37 +60,11 @@ function getFolderHTML(folder) {
   let icon = "assets/images/folder.png";
 
   return `
-    <div class="item folder" onclick="selectItem('${folder.id}')" data-id="${folder.id}">
+    <div class="item folder" onclick="handleItemClick('${folder.id}')" data-id="${folder.id}">
       <img src="${icon}" class="icon">
       <p class="title">${folder.name}</p>
     </div>
   `;
-}
-
-async function createItemData(item = {}) {
-  const itemData = {
-    id: item.id || generateId(),
-    order: currentItems.reduce((max, item) => Math.max(max, item.order), 0) + 1,
-    name: item.name || "",
-    type: item.type,
-    parentId: item.parentId || currentFolder.id,
-    path: item.path || [...currentFolder.path, { id: currentFolder.id, name: currentFolder.name }],
-    icon: item.icon || null,
-    lastModified: Date.now(),
-  };
-
-  switch (item.type) {
-    case "shortcut":
-      itemData.url = item.url || "";
-      break;
-    case "text":
-      itemData.content = item.content || "";
-      break;
-    default:
-      break;
-  }
-
-  return itemData;
 }
 
 function updateUI() {
@@ -102,6 +73,11 @@ function updateUI() {
   toggleActions(isActionsHidden);
   toggleTheme(darkTheme);
   updateMargin();
+}
+
+function setItems(items) {
+  currentItems = items;
+  displayItems();
 }
 
 function getItem(itemId) {
@@ -118,43 +94,20 @@ function createItem(itemData) {
   Toast.show("Item created successfully.");
 }
 
-function updateItem(itemId, updates) {
-  if (!updates.name) return;
-  const item = getItem(itemId);
-  const updatedItem = { ...item, ...updates };
+function displayItems() {
+  currentItems = currentItems.folders.concat(currentItems.files);
 
-  currentItems = currentItems.map((item) => (item.id === itemId ? updatedItem : item));
-  displayItems();
-  Toast.show("Item updated successfully.");
+  itemsGrid.innerHTML = currentItems.map((item) => (item.type === "folder" ? getFolderHTML(item) : getFileHTML(item))).join(" ") || `Folder is empty`;
 }
 
-function sortItems(items) {
-  return [...items].sort((a, b) => a.order - b.order);
-}
-
-function displayItems(items) {
-  items.files = sortItems(items.files);
-  items = items.folders.concat(items.files);
-
-  itemsGrid.innerHTML = items.map((item) => (item.type === "folder" ? getFolderHTML(item) : getFileHTML(item))).join(" ") || `Folder is empty`;
-}
-
-function handleItem(itemId) {
+function handleItemClick(itemId) {
   if (selectedItem === itemId) {
     const item = getItem(itemId);
-    switch (item.type) {
-      case "folder":
-        openFolder(item.id);
-        break;
-      case "shortcut":
-        if (!isValidUrl(item.url)) break;
-        window.open(item.url, "_blank");
-        break;
-      case "text":
-        ItemModal.openUpdate(item.id);
-        break;
-      default:
-        break;
+
+    if (item.type === "folder") {
+      openFolder(item.id);
+    } else if (item.fileType.startsWith("text/")) {
+      TextModal.openUpdate(item.id);
     }
   } else {
     selectItem(itemId);
@@ -187,7 +140,17 @@ function selectAdjacentItem(direction = 1) {
 
 function editItem() {
   if (!selectedItem) return;
-  ItemModal.openUpdate(selectedItem);
+  TextModal.openUpdate(selectedItem);
+}
+
+function createItemName(baseName) {
+  let count = 1;
+  let name;
+  do {
+    name = `${baseName + (count > 1 ? ` (${count})` : "")}`;
+    count++;
+  } while (currentItems.some((item) => item.parentId === currentFolder.id && item.name === name));
+  return name;
 }
 
 function toggleTheme(force = undefined) {
@@ -255,58 +218,27 @@ function deleteItem() {
   if (!selectedItem) return;
 
   if (selectedItem.type === "file") {
-    deleteFile(selectedItem.id, loading);
+    deleteFile(selectedItem.id);
   } else {
-    deleteFolder(selectedItem.id, loading);
+    deleteFolder(selectedItem.id);
   }
 
   selectedItem = null;
   Toast.show("Item deleted successfully.");
 }
 
-function getIcon(file) {
-  let icon = "assets/images/file.png";
+function getItemIcon(item) {
+  const fileType = item.fileType;
 
-  switch (file.fileType) {
-    case "audio/mpeg":
-    case "audio/ogg":
-    case "audio/wav":
-    case "audio/webm":
-      icon = "assets/images/file-audio.png";
-      break;
-    case "image/jpeg":
-    case "image/png":
-    case "image/gif":
-    case "image/webp":
-      icon = file.url;
-      break;
-    case "video/mp4":
-    case "video/webm":
-    case "video/ogg":
-      icon = "assets/images/file-video.png";
-      break;
-    case "text/plain":
-      icon = "assets/images/file-text.png";
-      break;
-    case "text/html":
-      icon = "assets/images/file-internet.png";
-      break;
-    case "application/zip":
-    case "application/x-zip-compressed":
-    case "multipart/x-zip":
-      icon = "assets/images/file-zip.png";
-      break;
-    case "application/vnd.rar":
-    case "application/x-rar-compressed":
-    case "application/rar":
-    case "application/x-compressed":
-      icon = "assets/images/file-rar.png";
-      break;
-    default:
-      break;
-  }
+  if (fileType.startsWith("audio/")) return "assets/images/file-audio.png";
+  if (fileType.startsWith("image/")) return item.url;
+  if (fileType.startsWith("video/")) return "assets/images/file-video.png";
+  if (fileType.startsWith("text/html")) return "assets/images/file-internet.png";
+  if (fileType.startsWith("text/")) return "assets/images/file-text.png";
+  if (fileType.startsWith("application/zip")) return "assets/images/file-zip.png";
+  if (fileType.startsWith("application/vnd.rar")) return "assets/images/file-rar.png";
 
-  return icon;
+  return "assets/images/file.png";
 }
 
 const keyActions = {

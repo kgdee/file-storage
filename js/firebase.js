@@ -38,16 +38,16 @@ async function getFolder(folderId) {
   }
 }
 
-async function createFolder(folderName, parentFolderId, callback) {
+async function createFolder(folderName, parentFolderId) {
   try {
-    callback(0);
+    loading(0);
     let path = [];
 
     if (parentFolderId) {
       const parentFolder = await getFolder(parentFolderId);
       path = [...parentFolder.path, parentFolderId];
     }
-    callback(50);
+    loading(50);
     const folderRef = await db.collection("folders").add({
       name: folderName,
       parent: parentFolderId,
@@ -56,16 +56,16 @@ async function createFolder(folderName, parentFolderId, callback) {
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
     console.log("Folder created with ID: ", folderRef.id);
-    callback(100);
-    setTimeout(() => callback(null), 500);
+    loading(100);
+    setTimeout(() => loading(null), 500);
   } catch (error) {
     console.error("Error creating folder: ", error);
   }
 }
 
-async function deleteFolder(folderId, callback) {
+async function deleteFolder(folderId) {
   try {
-    callback(0);
+    loading(0);
     const query = db.collection("folders").where("path", "array-contains", folderId);
 
     const querySnapshot = await query.get();
@@ -76,7 +76,7 @@ async function deleteFolder(folderId, callback) {
       await deleteFiles(doc.id);
       await deleteFolderDoc(doc.id);
 
-      callback((90 / querySnapshot.size) * (i + 1));
+      loading((90 / querySnapshot.size) * (i + 1));
     }
 
     // Delete its files
@@ -85,8 +85,8 @@ async function deleteFolder(folderId, callback) {
     // Delete the folder
     await deleteFolderDoc(folderId);
 
-    callback(100);
-    setTimeout(() => callback(null), 500);
+    loading(100);
+    setTimeout(() => loading(null), 500);
   } catch (error) {
     console.error(error);
   }
@@ -119,9 +119,9 @@ async function getFile(fileId) {
   }
 }
 
-async function uploadFile(file, folderId, callback) {
+async function uploadFile(file, folderId) {
   try {
-    callback(0);
+    loading(0);
 
     const fileRef = await db.collection("files").add({
       name: file.name,
@@ -132,17 +132,17 @@ async function uploadFile(file, folderId, callback) {
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
 
-    callback(100);
+    loading(100);
     console.log("File uploaded successfully.");
-    setTimeout(() => callback(null), 500);
+    setTimeout(() => loading(null), 500);
   } catch (error) {
     console.error("Error uploading file:", error);
   }
 }
 
-async function updateFile(file, fileId, callback) {
+async function updateFile(file, fileId) {
   try {
-    callback(0);
+    loading(0);
 
     const fileRef = db.collection("files").doc(fileId);
 
@@ -152,23 +152,23 @@ async function updateFile(file, fileId, callback) {
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
 
-    callback(100);
+    loading(100);
     console.log("File updated successfully.");
-    setTimeout(() => callback(null), 500);
+    setTimeout(() => loading(null), 500);
   } catch (error) {
     console.error("Error updating file: ", error);
   }
 }
 
-async function deleteFile(fileId, callback) {
+async function deleteFile(fileId) {
   try {
-    callback(0);
+    loading(0);
     const fileRef = db.collection("files").doc(fileId);
     await fileRef.delete();
 
     console.log(`File with ID ${fileId} successfully deleted.`);
-    callback(100);
-    setTimeout(() => callback(null), 500);
+    loading(100);
+    setTimeout(() => loading(null), 500);
   } catch (error) {
     console.error(error);
   }
@@ -229,48 +229,30 @@ function listFiles(folderId, callback) {
   }
 }
 
-async function createTxt(data, folderId, callback) {
+async function createTxt(folderId, data) {
   const { name, content } = data;
 
-  callback(0);
+  loading(0);
 
   const file = new File([content], `${name}.txt`, { type: "text/plain" });
 
   await uploadFile(file, folderId, () => {});
 
-  callback(100);
-  setTimeout(() => callback(null), 500);
+  loading(100);
+  setTimeout(() => loading(null), 500);
 }
 
-async function updateTxt(data, fileId, callback) {
+async function updateTxt(fileId, data) {
   const { name, content } = data;
 
   if (!content) return;
 
-  callback(0);
+  loading(0);
 
   const file = new File([content], `${name}.txt`, { type: "text/plain" });
 
   await updateFile(file, fileId, () => {});
 
-  callback(100);
-  setTimeout(() => callback(null), 500);
-}
-
-// --- Option A: Convert back to a downloadable file ---
-function downloadRawFile(rawBytes, fileName, mimeType) {
-  const blob = new Blob([rawBytes], { type: mimeType });
-  const url = URL.createObjectURL(blob);
-  
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = fileName;
-  a.click();
-  
-  URL.revokeObjectURL(url);
-}
-
-// --- Option B: Convert back to JS File object (e.g. for uploads/inputs) ---
-function rawBytesToFile(rawBytes, fileName, mimeType) {
-  return new File([rawBytes], fileName, { type: mimeType });
+  loading(100);
+  setTimeout(() => loading(null), 500);
 }
