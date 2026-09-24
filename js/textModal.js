@@ -25,7 +25,7 @@ const TextModal = (() => {
 
   function openUpdate(itemId) {
     const item = getItem(itemId);
-    currentItem = item;
+    currentItem = { ...item, name: removeExtension(item.name) };
     update();
     open();
   }
@@ -56,7 +56,7 @@ const TextModal = (() => {
       icon: iconInput.value ? await getFileDataUrl(iconInput.files[0]) : currentItem?.icon || null,
     };
 
-    currentItem ? updateTxt(currentItem.id, itemData) : createTxt(currentItem.id, itemData);
+    currentItem ? updateTxt(currentItem.id, itemData) : createTxt(itemData, currentFolder.id);
     close();
   }
 

@@ -118,7 +118,7 @@ async function deleteFolderDoc(folderId) {
   try {
     const folderRef = db.collection("folders").doc(folderId);
     await folderRef.delete();
-    console.log(`Folder with ID ${folderId} successfully deleted.`);
+    console.log("Folder deleted successfully.");
   } catch (error) {
     console.error(error);
   }
@@ -131,7 +131,6 @@ async function getFile(fileId) {
 
     if (doc.exists) {
       const docData = doc.data();
-      console.log(docData);
       return docData;
     }
 
@@ -190,7 +189,7 @@ async function deleteFile(fileId) {
     const fileRef = db.collection("files").doc(fileId);
     await fileRef.delete();
 
-    console.log(`File with ID ${fileId} successfully deleted.`);
+    console.log("File deleted successfully.");
     loading(100);
     setTimeout(() => loading(null), 500);
   } catch (error) {
@@ -253,7 +252,7 @@ function listFiles(folderId, callback) {
   }
 }
 
-async function createTxt(folderId, data) {
+async function createTxt(data, folderId) {
   const { name, content } = data;
 
   loading(0);

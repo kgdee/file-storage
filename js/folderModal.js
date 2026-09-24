@@ -1,4 +1,4 @@
-const TextModal = (() => {
+const FolderModal = (() => {
   const element = document.querySelector(".folder-modal");
   const titleEl = element.querySelector(".title");
   const nameInput = element.querySelector(".name-input");
@@ -31,9 +31,9 @@ const TextModal = (() => {
 
   function update() {
     iconInput.value = "";
-    iconPreview.src = currentItem?.icon || `assets/images/file-text.png`;
-    titleEl.textContent = currentItem ? `Edit ${currentItem.name}` : `Create new text`;
-    nameInput.value = currentItem?.name || createItemName(`New text`);
+    iconPreview.src = currentItem?.icon || `assets/images/folder.png`;
+    titleEl.textContent = currentItem ? `Edit ${currentItem.name}` : `Create new folder`;
+    nameInput.value = currentItem?.name || createItemName(`New folder`);
 
     submitBtn.innerHTML = currentItem ? `<i class="bi bi-check2"></i> Update` : `<i class="bi bi-plus-lg"></i> Create`;
     deleteBtn.classList.toggle("hidden", !currentItem);
@@ -61,11 +61,15 @@ const TextModal = (() => {
     await deleteItem(currentItem.id);
     close();
   }
+  
+  function open() {
+    element.classList.toggle("hidden", false);
+  }
 
   function close() {
     element.classList.toggle("hidden", true);
     currentItem = null;
   }
 
-  return { openCreate, openUpdate, close, listenText, copyText };
+  return { openCreate, openUpdate, close };
 })();

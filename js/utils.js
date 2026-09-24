@@ -56,8 +56,7 @@ function getFileExtension(file) {
   return lastDot === -1 ? "" : fileName.slice(lastDot);
 }
 
-function getFileName(file) {
-  const fileName = file.name;
+function removeExtension(fileName) {
   const lastDotIndex = fileName.lastIndexOf(".");
   if (lastDotIndex <= 0) return fileName;
 

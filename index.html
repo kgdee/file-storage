@@ -13,6 +13,7 @@
     <script src="js/firebase.js" defer></script>
     <script src="js/utils.js" defer></script>
     <script src="js/main.js" defer></script>
+    <script src="js/folderModal.js" defer></script>
     <script src="js/textModal.js" defer></script>
     <script src="js/confirmModal.js" defer></script>
     <script src="js/searchBar.js" defer></script>
@@ -59,7 +60,7 @@
         <div class="breadcrumbs"></div>
 
         <div class="action-bar">
-          <button class="create-folder" onclick="toggleFolderModal()">
+          <button class="create-folder" onclick="FolderModal.openCreate()">
             <i class="bi bi-folder-plus"></i>
           </button>
           <button class="create-text" onclick="TextModal.openCreate()">
@@ -113,9 +114,9 @@
         </div>
 
         <!-- Folder modal -->
-        <div class="item-modal folder-modal modal hidden" onclick="toggleFolderModal()">
+        <div class="item-modal folder-modal modal hidden" onclick="FolderModal.close()">
           <div class="modal-content" onclick="stopPropagation(event)">
-            <button class="close" onclick="toggleFolderModal()">
+            <button class="close" onclick="FolderModal.close()">
               <i class="bi bi-x-lg"></i>
             </button>
             <div class="title">Create new folder</div>

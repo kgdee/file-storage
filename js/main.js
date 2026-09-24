@@ -5,10 +5,9 @@ const breadcrumbsEl = document.querySelector(".breadcrumbs");
 const actionsModal = document.querySelector(".create-modal");
 const settingsModal = document.querySelector(".settings-modal");
 const marginInput = settingsModal.querySelector(".item.margin input");
-const folderModal = document.querySelector(".folder-modal")
 
+let currentFolder = ROOT_FOLDER;
 let currentItems = [];
-let currentItem = ROOT_FOLDER;
 let darkTheme = load("darkTheme", true);
 let selectedItem = null;
 let isActionsHidden = load("isActionsHidden", false);
@@ -28,13 +27,14 @@ async function uploadFiles(files) {
   files = Array.from(files);
 
   for (let i = 0; i < files.length; i++) {
-    await uploadFile(files[i], currentItem.id);
+    await uploadFile(files[i], currentFolder.id);
   }
 }
 
 async function openFolder(folderId) {
+  deselectItems();
   loading(0);
-  currentItem = await getFolder(folderId);
+  currentFolder = await getFolder(folderId);
   loading(50);
   listFiles(folderId, setItems);
 
@@ -85,16 +85,6 @@ function getItem(itemId) {
   return currentItems.filter((item) => item.id === itemId)[0];
 }
 
-function createItem(itemData) {
-  if (!itemData.name) return;
-
-  currentItems.push(itemData);
-
-  selectedItem = itemData.id;
-  displayItems();
-  Toast.show("Item created successfully.");
-}
-
 function displayItems() {
   currentItems = currentItems.folders.concat(currentItems.files);
 
@@ -102,34 +92,33 @@ function displayItems() {
 }
 
 function handleItemClick(itemId) {
-  if (selectedItem === itemId) {
-    const item = getItem(itemId);
+  const item = getItem(itemId);
 
+  if (selectedItem && item && selectedItem.id === item.id) {
     if (item.type === "folder") {
       openFolder(item.id);
     } else if (item.fileType.startsWith("text/")) {
       TextModal.openUpdate(item.id);
     }
   } else {
-    selectItem(itemId);
+    selectItem(item);
   }
 }
 
-function selectItem(itemId) {
-  deselectItem();
-  selectedItem = itemId;
-  document.querySelector(`[data-id="${selectedItem}"]`).classList.add("selected");
+function selectItem(item) {
+  deselectItems();
+  selectedItem = item;
+  itemsGrid.querySelector(`[data-id="${selectedItem.id}"]`).classList.add("selected");
 }
 
-function deselectItem() {
+function deselectItems() {
   if (!selectedItem) return;
-  document.querySelector(`[data-id="${selectedItem}"]`).classList.remove("selected");
+  itemsGrid.querySelectorAll(".selected").forEach((el) => el.classList.remove("selected"));
   selectedItem = null;
 }
 
 function selectAdjacentItem(direction = 1) {
-  const sorted = sortItems(currentItems);
-  if (!selectedItem) selectedItem = sorted[0].id;
+  if (!selectedItem) selectedItem = currentItems[0];
 
   const index = sorted.findIndex((item) => item.id === selectedItem);
 
@@ -141,16 +130,23 @@ function selectAdjacentItem(direction = 1) {
 
 function editItem() {
   if (!selectedItem) return;
-  TextModal.openUpdate(selectedItem);
+
+  if (selectedItem.type === "folder") {
+    FolderModal.openUpdate(selectedItem.id);
+  } else if (selectedItem.fileType.startsWith("text/")) {
+    TextModal.openUpdate(selectedItem.id);
+  } else {
+    Toast.show("Item editing is not available for selected item.");
+  }
 }
 
 function createItemName(baseName) {
   let count = 1;
   let name;
   do {
-    name = `${baseName + (count > 1 ? ` (${count})` : "")}`;
+    name = `${baseName}${count > 1 ? ` (${count})` : ""}`;
     count++;
-  } while (currentItems.some((item) => item.parentId === currentItem.id && item.name === name));
+  } while (currentItems.some((item) => item.name === `${name}.txt`));
   return name;
 }
 
@@ -167,15 +163,15 @@ function toggleTheme(force = undefined) {
 async function displayBreadcrumbs() {
   breadcrumbsEl.innerHTML = `<span onclick="openFolder(null)">Root</span>`;
 
-  if (currentItem.type === "root") return;
+  if (currentFolder.type === "root") return;
 
-  for (const folderId of currentItem.path) {
+  for (const folderId of currentFolder.path) {
     const folder = await getFolder(folderId);
 
     breadcrumbsEl.innerHTML += ` / <span onclick="openFolder('${folderId}')">${folder.name}<span>`;
   }
 
-  breadcrumbsEl.innerHTML += `  / <span>${currentItem.name}</span>`;
+  breadcrumbsEl.innerHTML += `  / <span>${currentFolder.name}</span>`;
   breadcrumbsEl.scrollLeft = breadcrumbsEl.scrollWidth;
 }
 
@@ -240,10 +236,6 @@ function getItemIcon(item) {
   if (fileType.startsWith("application/vnd.rar")) return "assets/images/file-rar.png";
 
   return "assets/images/file.png";
-}
-
-function toggleFolderModal() {
-  folderModal.classList.toggle("hidden")
 }
 
 const keyActions = {
