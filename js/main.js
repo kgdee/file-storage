@@ -3,8 +3,6 @@ const actionBar = document.querySelector(".action-bar");
 const itemsGrid = document.querySelector(".items-grid");
 const breadcrumbsEl = document.querySelector(".breadcrumbs");
 const actionsModal = document.querySelector(".create-modal");
-const settingsModal = document.querySelector(".settings-modal");
-const marginInput = settingsModal.querySelector(".item.margin input");
 
 let currentFolder = ROOT_FOLDER;
 let currentItems = [];
@@ -13,11 +11,9 @@ let selectedItem = null;
 let isActionsHidden = load("isActionsHidden", false);
 let margin = load("margin", 0);
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   openFolder(null);
-  actionsModal.querySelectorAll(".item").forEach((el) => {
-    el.addEventListener("click", () => toggleModal("create-modal", false));
-  });
+  toggleTheme(darkTheme);
 });
 
 async function uploadFile(file) {
@@ -89,8 +85,8 @@ function getFolderHTML(item) {
   `;
 }
 
-function setItems(items) {
-  currentItems = items;
+function setItems(data) {
+  currentItems = data.folders.concat(data.files);
   displayItems();
 }
 
@@ -98,10 +94,10 @@ function getItem(itemId) {
   return currentItems.filter((item) => item.id === itemId)[0];
 }
 
-function displayItems() {
-  currentItems = currentItems.folders.concat(currentItems.files);
+function displayItems(items) {
+  items = items || currentItems;
 
-  itemsGrid.innerHTML = currentItems.map((item) => (item.type === "folder" ? getFolderHTML(item) : getFileHTML(item))).join(" ") || `<span class="message">Folder is empty</span>`;
+  itemsGrid.innerHTML = items.map((item) => (item.type === "folder" ? getFolderHTML(item) : getFileHTML(item))).join(" ") || `<span class="message">Folder is empty</span>`;
 }
 
 function handleItemClick(itemId) {
@@ -110,8 +106,12 @@ function handleItemClick(itemId) {
   if (selectedItem && item && selectedItem.id === item.id) {
     if (item.type === "folder") {
       openFolder(item.id);
+    } else if (item.fileType.startsWith("text/html")) {
+      openHtmlContent(item.content);
     } else if (item.fileType.startsWith("text/")) {
       TextModal.openUpdate(item.id);
+    } else if (item.fileType.startsWith("image/")) {
+      ImageModal.open(item);
     }
   } else {
     selectItem(item);
@@ -131,14 +131,15 @@ function deselectItems() {
 }
 
 function selectAdjacentItem(direction = 1) {
-  if (!selectedItem) selectedItem = currentItems[0];
+  if (!currentItems || currentItems.length <= 0) return
 
-  const index = sorted.findIndex((item) => item.id === selectedItem);
+  selectedItem = selectedItem || currentItems[0];
 
-  const item = sorted[index + direction];
+  const index = currentItems.findIndex(item => item.id === selectedItem.id)
+  const item = currentItems[index + direction];
   if (!item) return;
 
-  selectItem(item.id);
+  selectItem(item);
 }
 
 function editItem() {
@@ -163,14 +164,12 @@ function createItemName(baseName) {
   return name;
 }
 
-function toggleTheme(force = undefined) {
-  const checkbox = document.querySelector(".theme-checkbox");
-  const descEl = document.querySelector(".theme-desc");
-  force === undefined ? (darkTheme = !darkTheme) : (darkTheme = force);
+function toggleTheme(force) {
+  const toggle = document.querySelector(".theme-toggle");
+  darkTheme = force === undefined ? !darkTheme : force;
   save("darkTheme", darkTheme);
   document.body.classList.toggle("dark-theme", darkTheme);
-  checkbox.checked = darkTheme;
-  descEl.textContent = darkTheme ? "Enabled" : "Disabled";
+  toggle.innerHTML = darkTheme ? `<i class="bi bi-sun"></i>` : `<i class="bi bi-moon"></i>`;
 }
 
 async function displayBreadcrumbs() {
@@ -196,13 +195,6 @@ function changeMargin(value) {
   updateMargin();
 }
 
-function toggleModal(name, force) {
-  const element = document.querySelector(`.modal.${name}`);
-  if (!element) return;
-  const shouldHide = force !== undefined ? !force : undefined;
-  element.classList.toggle("hidden", shouldHide);
-}
-
 dropZone.ondragover = (e) => {
   e.preventDefault();
   dropZone.classList.add("dragover");
@@ -217,13 +209,19 @@ dropZone.ondrop = (e) => {
   uploadFiles(e.dataTransfer.files);
 };
 
-function downloadItem() {
-  const item = selectedItem;
+function downloadItem(item) {
+  item = item || selectedItem;
   if (!item) return;
   if (item.type !== "file") return;
 
   if (item.fileType.startsWith("text/")) downloadText(item);
   else download(item.content, item.name);
+}
+
+function openHtmlContent(content) {
+  const blob = new Blob([content], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  window.open(url, "_blank");
 }
 
 function downloadText(item) {
@@ -232,19 +230,21 @@ function downloadText(item) {
   download(url, item.name);
 }
 
-async function deleteItem() {
-  if (!selectedItem) return;
+async function deleteItem(item) {
+  item = item || selectedItem;
+  if (!item) return;
 
-  const confirmed = await ConfirmModal.confirmAction(`Delete "${selectedItem.name}"?`, "This action cannot be undone.");
+  const confirmed = await ConfirmModal.confirmAction(`Delete "${item.name}"?`, "This action cannot be undone.");
   if (!confirmed) return false;
 
-  if (selectedItem.type === "file") {
-    deleteFile(selectedItem.id);
+  if (item.type === "file") {
+    deleteFile(item.id);
   } else {
-    deleteFolder(selectedItem.id);
+    deleteFolder(item.id);
   }
 
   selectedItem = null;
+  return true;
 }
 
 function getItemIcon(item) {

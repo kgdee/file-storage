@@ -3,12 +3,12 @@
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDtcjeZJZZ-Cp1I6mMjnkDceafJb8VqiYk",
-  authDomain: "file-storage-f993c.firebaseapp.com",
-  projectId: "file-storage-f993c",
-  storageBucket: "file-storage-f993c.firebasestorage.app",
-  messagingSenderId: "1038771068830",
-  appId: "1:1038771068830:web:10e0ef6c71eed2d5b8408f",
+  apiKey: "AIzaSyCk8H8RKoAmX7FEkcKC5ITYltZlRLG007E",
+  authDomain: "public-drive-431fb.firebaseapp.com",
+  projectId: "public-drive-431fb",
+  storageBucket: "public-drive-431fb.firebasestorage.app",
+  messagingSenderId: "2133528936",
+  appId: "1:2133528936:web:b5921904daaedff1e906dd",
 };
 
 // Initialize Firebase

@@ -97,6 +97,7 @@ textarea {
   transform: translate(-50%, -50%);
   width: 500px;
   max-width: calc(100% - 20px);
+  max-height: calc(100% - 100px);
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -114,6 +115,10 @@ textarea {
   background-color: transparent;
   color: var(--text-color);
   font-size: 1.2rem;
+}
+
+.modal .title {
+  margin-right: 20px;
 }
 
 .modal .actions {
@@ -218,6 +223,10 @@ body {
   padding: 0;
   border: none;
   color: #333;
+}
+
+.search-box .clear-btn {
+  cursor: pointer;
 }
 
 main {
@@ -342,10 +351,6 @@ main {
   font-size: 2rem;
 }
 
-.create-modal .modal-content {
-  width: 300px;
-}
-
 .item-modal .name-input {
   flex: 1;
   background-color: transparent;
@@ -373,18 +378,25 @@ main {
 .text-modal .modal-content {
   width: 100%;
   max-width: 1440px;
+  max-height: none;
   height: 100%;
   border-radius: 0;
   border: none;
 }
 
-.settings-modal .modal-content {
-  transform: none;
-  top: 50px;
-  left: auto;
-  right: 20px;
-  gap: 5px;
-  width: 300px;
+.image-modal .modal-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-modal .modal-body img {
+  min-width: 100px;
+  min-height: 100px;
+  max-width: 300px;
+  max-height: 300px;
+  object-fit: contain;
 }
 
 .toast {
@@ -407,67 +419,6 @@ main {
   border-radius: 5px;
   width: max-content;
   max-width: 100%;
-}
-
-.menu-modal .header {
-  padding: 10px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.menu-modal .header .title {
-  font-size: 17px;
-  font-weight: 500;
-}
-
-.menu-modal .header .subtitle {
-  opacity: 0.8;
-  margin-top: 5px;
-  font-size: 13px;
-}
-
-.menu-modal .item {
-  min-height: 48px;
-  padding: 0 16px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.1s;
-}
-
-.menu-modal .item:hover {
-  background: var(--label-color);
-}
-
-.menu-modal .item .bi {
-  font-size: 1.5rem;
-}
-
-.menu-modal .item .label {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.menu-modal .item span {
-  color: var(--text-color);
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-.menu-modal .item .arrow {
-  color: var(--text-color);
-  font-size: 22px;
-}
-
-.menu-modal .item input[type="number"] {
-  width: 40px;
-  padding: 2px;
-  background-color: var(--label-color);
-  color: var(--text-color);
-  border-bottom: 1px solid var(--border-color);
 }
 
 .toggle {
@@ -572,12 +523,7 @@ main {
     display: flex;
   }
 
-  .settings-modal .modal-content {
-    bottom: auto;
-    top: 50px;
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    width: 100%;
+  .theme-toggle {
+    display: none;
   }
 }
