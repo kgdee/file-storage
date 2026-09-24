@@ -127,3 +127,7 @@ function isArchive(fileType) {
 
   return archiveMimeTypes.includes(fileType);
 }
+
+function isWithinSizeLimit(file, limitMb) {
+  return file.size <= limitMb * 1024 * 1024
+}

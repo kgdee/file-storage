@@ -297,6 +297,12 @@ main {
   grid-auto-rows: minmax(100px, auto);
 }
 
+.items-grid .message {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
 .items-grid .item {
   display: flex;
   flex-direction: column;

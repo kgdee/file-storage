@@ -21,9 +21,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 async function uploadFile(file) {
+  let content = "";
+
+  if (file.type.startsWith("text/")) content = await file.text();
+  else if (file.type.startsWith("image/")) content = await handleImageFile(file, 512);
+  else {
+    if (!isWithinSizeLimit(file, 0.5)) {
+      Toast.show(`Upload failed. The file exceeds 500KB limit`);
+      return;
+    }
+
+    content = await getFileDataUrl(file);
+  }
+
   const fileData = {
     name: file.name,
-    content: file.type.startsWith("text/") ? await file.text() : await getFileDataUrl(file),
+    content: content,
     folder: currentFolder.id,
     fileType: file.type,
   };
@@ -54,24 +67,24 @@ async function openFolder(folderId) {
   setTimeout(() => loading(null), 500);
 }
 
-function getFileHTML(file) {
-  let icon = getItemIcon(file);
+function getFileHTML(item) {
+  let icon = item.icon || getItemIcon(item);
 
   return `
-    <div class="item file" onclick="handleItemClick('${file.id}')" data-id="${file.id}">
+    <div class="item file" onclick="handleItemClick('${item.id}')" data-id="${item.id}">
       <img src="${icon}" class="icon">
-      <p class="title">${file.name}</p>
+      <p class="title">${item.name}</p>
     </div>
   `;
 }
 
-function getFolderHTML(folder) {
-  let icon = "assets/images/folder.png";
+function getFolderHTML(item) {
+  let icon = item.icon || "assets/images/folder.png";
 
   return `
-    <div class="item folder" onclick="handleItemClick('${folder.id}')" data-id="${folder.id}">
+    <div class="item folder" onclick="handleItemClick('${item.id}')" data-id="${item.id}">
       <img src="${icon}" class="icon">
-      <p class="title">${folder.name}</p>
+      <p class="title">${item.name}</p>
     </div>
   `;
 }
@@ -88,7 +101,7 @@ function getItem(itemId) {
 function displayItems() {
   currentItems = currentItems.folders.concat(currentItems.files);
 
-  itemsGrid.innerHTML = currentItems.map((item) => (item.type === "folder" ? getFolderHTML(item) : getFileHTML(item))).join(" ") || `Folder is empty`;
+  itemsGrid.innerHTML = currentItems.map((item) => (item.type === "folder" ? getFolderHTML(item) : getFileHTML(item))).join(" ") || `<span class="message">Folder is empty</span>`;
 }
 
 function handleItemClick(itemId) {
@@ -205,10 +218,18 @@ dropZone.ondrop = (e) => {
 };
 
 function downloadItem() {
-  if (!selectedItem) return;
-  if (selectedItem.type !== "file") return;
+  const item = selectedItem;
+  if (!item) return;
+  if (item.type !== "file") return;
 
-  window.open(selectedItem.url, "_blank");
+  if (item.fileType.startsWith("text/")) downloadText(item);
+  else download(item.content, item.name);
+}
+
+function downloadText(item) {
+  const blob = new Blob([item.content], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  download(url, item.name);
 }
 
 async function deleteItem() {
@@ -230,7 +251,7 @@ function getItemIcon(item) {
   const fileType = item.fileType;
 
   if (fileType.startsWith("audio/")) return "assets/images/file-audio.png";
-  if (fileType.startsWith("image/")) return item.url;
+  if (fileType.startsWith("image/")) return item.content;
   if (fileType.startsWith("video/")) return "assets/images/file-video.png";
   if (fileType.startsWith("text/html")) return "assets/images/file-internet.png";
   if (fileType.startsWith("text/")) return "assets/images/file-text.png";
@@ -255,22 +276,6 @@ function loading(progress) {
   progressEl.value = hasProgress ? progress : 0;
   statusEl.innerText = hasProgress ? `${Math.round(progress)}%` : "";
 }
-
-const keyActions = {
-  KeyF: toggleFullscreen,
-  ArrowLeft: () => selectAdjacentItem(-1),
-  ArrowRight: () => selectAdjacentItem(1),
-};
-
-document.addEventListener("keydown", (event) => {
-  const action = keyActions[event.code];
-  const isFocus = document.activeElement.matches("input, textarea");
-
-  if (action && !isFocus) {
-    event.preventDefault();
-    action();
-  }
-});
 
 async function handleImageFile(file, maxSize = 128) {
   const dataUrl = await getFileDataUrl(file);
@@ -303,3 +308,19 @@ async function handleImageFile(file, maxSize = 128) {
   const mimeType = file?.type || file?.mimeType || "image/png";
   return canvas.toDataURL(mimeType);
 }
+
+const keyActions = {
+  KeyF: toggleFullscreen,
+  ArrowLeft: () => selectAdjacentItem(-1),
+  ArrowRight: () => selectAdjacentItem(1),
+};
+
+document.addEventListener("keydown", (event) => {
+  const action = keyActions[event.code];
+  const isFocus = document.activeElement.matches("input, textarea");
+
+  if (action && !isFocus) {
+    event.preventDefault();
+    action();
+  }
+});
