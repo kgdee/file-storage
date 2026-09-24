@@ -37,26 +37,25 @@ const TextModal = (() => {
     nameInput.value = currentItem?.name || createItemName(`New text`);
     contentInput.value = currentItem?.content || "";
 
-    submitBtn.innerHTML = currentItem ? `<i class="bi bi-check2"></i> Update` : `<i class="bi bi-plus-lg"></i> Create`;
+    submitBtn.innerHTML = currentItem ? `Update` : `Create`;
     deleteBtn.classList.toggle("hidden", !currentItem);
   }
 
   async function handleSubmit() {
-    if (iconInput.value) {
-      const file = iconInput.files[0];
-      if (file.size > 0.5 * 1024 * 1024) {
-        Toast.show("Upload failed: That file exceeds 500KB limit");
-        return;
-      }
+    const itemData = {
+      name: `${nameInput.value}.txt`,
+      folder: currentFolder.id,
+      content: contentInput.value,
+      icon: iconInput.value ? await handleImageFile(iconInput.files[0], 64) : currentItem?.icon || null,
+      fileType: "text/plain",
+    };
+    if (currentItem) {
+      itemData.id = currentItem.id
+      updateFile(itemData)
+    } else {
+      createFile(itemData);
     }
 
-    let itemData = {
-      name: nameInput.value,
-      content: contentInput.value,
-      icon: iconInput.value ? await getFileDataUrl(iconInput.files[0]) : currentItem?.icon || null,
-    };
-
-    currentItem ? updateTxt(currentItem.id, itemData) : createTxt(itemData, currentFolder.id);
     close();
   }
 

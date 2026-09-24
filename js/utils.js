@@ -110,3 +110,20 @@ function canvasToBlob(canvas, mimeType) {
     }, mimeType);
   });
 }
+
+function isArchive(fileType) {
+  // Common archive MIME types
+  const archiveMimeTypes = [
+    'application/zip',
+    'application/x-zip-compressed',
+    'application/x-tar',
+    'application/gzip',
+    'application/x-gzip',
+    'application/x-7z-compressed',
+    'application/vnd.rar',
+    'application/x-rar-compressed',
+    'application/x-bzip2'
+  ];
+
+  return archiveMimeTypes.includes(fileType);
+}

@@ -15,11 +15,21 @@ let margin = load("margin", 0);
 
 document.addEventListener("DOMContentLoaded", async () => {
   openFolder(null);
-  // updateUI();
   actionsModal.querySelectorAll(".item").forEach((el) => {
     el.addEventListener("click", () => toggleModal("create-modal", false));
   });
 });
+
+async function uploadFile(file) {
+  const fileData = {
+    name: file.name,
+    content: file.type.startsWith("text/") ? await file.text() : await getFileDataUrl(file),
+    folder: currentFolder.id,
+    fileType: file.type,
+  };
+
+  await createFile(fileData);
+}
 
 async function uploadFiles(files) {
   if (!files || files.length <= 0) return;
@@ -27,7 +37,7 @@ async function uploadFiles(files) {
   files = Array.from(files);
 
   for (let i = 0; i < files.length; i++) {
-    await uploadFile(files[i], currentFolder.id);
+    uploadFile(files[i]);
   }
 }
 
@@ -43,8 +53,6 @@ async function openFolder(folderId) {
   loading(100);
   setTimeout(() => loading(null), 500);
 }
-
-function loading() {}
 
 function getFileHTML(file) {
   let icon = getItemIcon(file);
@@ -66,14 +74,6 @@ function getFolderHTML(folder) {
       <p class="title">${folder.name}</p>
     </div>
   `;
-}
-
-function updateUI() {
-  displayItems();
-  displayBreadcrumbs();
-  toggleActions(isActionsHidden);
-  toggleTheme(darkTheme);
-  updateMargin();
 }
 
 function setItems(items) {
@@ -136,7 +136,7 @@ function editItem() {
   } else if (selectedItem.fileType.startsWith("text/")) {
     TextModal.openUpdate(selectedItem.id);
   } else {
-    Toast.show("Item editing is not available for selected item.");
+    Toast.show("Item editing is not available for the selected item.");
   }
 }
 
@@ -211,8 +211,11 @@ function downloadItem() {
   window.open(selectedItem.url, "_blank");
 }
 
-function deleteItem() {
+async function deleteItem() {
   if (!selectedItem) return;
+
+  const confirmed = await ConfirmModal.confirmAction(`Delete "${selectedItem.name}"?`, "This action cannot be undone.");
+  if (!confirmed) return false;
 
   if (selectedItem.type === "file") {
     deleteFile(selectedItem.id);
@@ -221,7 +224,6 @@ function deleteItem() {
   }
 
   selectedItem = null;
-  Toast.show("Item deleted successfully.");
 }
 
 function getItemIcon(item) {
@@ -232,10 +234,26 @@ function getItemIcon(item) {
   if (fileType.startsWith("video/")) return "assets/images/file-video.png";
   if (fileType.startsWith("text/html")) return "assets/images/file-internet.png";
   if (fileType.startsWith("text/")) return "assets/images/file-text.png";
-  if (fileType.startsWith("application/zip")) return "assets/images/file-zip.png";
-  if (fileType.startsWith("application/vnd.rar")) return "assets/images/file-rar.png";
+  if (isArchive(fileType)) return "assets/images/file-zip.png";
 
   return "assets/images/file.png";
+}
+
+function notify(message) {
+  console.log(message);
+  Toast.show(message);
+}
+
+function loading(progress) {
+  const progressModal = document.querySelector(".progress-modal");
+  const progressEl = progressModal.querySelector("progress");
+  const statusEl = progressModal.querySelector(".status");
+
+  const hasProgress = Number.isFinite(progress);
+
+  progressModal.classList.toggle("hidden", !hasProgress);
+  progressEl.value = hasProgress ? progress : 0;
+  statusEl.innerText = hasProgress ? `${Math.round(progress)}%` : "";
 }
 
 const keyActions = {
@@ -253,3 +271,35 @@ document.addEventListener("keydown", (event) => {
     action();
   }
 });
+
+async function handleImageFile(file, maxSize = 128) {
+  const dataUrl = await getFileDataUrl(file);
+  const img = await loadImage(dataUrl);
+
+  let width = img.width;
+  let height = img.height;
+
+  if (width > height) {
+    if (width > maxSize) {
+      height = Math.round((height * maxSize) / width);
+      width = maxSize;
+    }
+  } else {
+    if (height > maxSize) {
+      width = Math.round((width * maxSize) / height);
+      height = maxSize;
+    }
+  }
+
+  // Draw on standard HTML canvas
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(img, 0, 0, width, height);
+
+  // Return Data URL (base64 string) directly
+  const mimeType = file?.type || file?.mimeType || "image/png";
+  return canvas.toDataURL(mimeType);
+}

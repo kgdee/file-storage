@@ -508,6 +508,15 @@ main {
   background-color: var(--red);
 }
 
+.progress-modal .modal-content {
+  width: 300px;
+}
+
+.progress-modal progress {
+  width: 100%;
+  background-color: #4caf50;
+}
+
 .drop-modal {
   pointer-events: none;
   display: none;
@@ -533,7 +542,6 @@ main {
 
 /* Medium screens (Tablets, up to 768px wide) */
 @media (max-width: 768px) {
- 
 }
 
 /* Small screens (Phones, up to 480px wide) */

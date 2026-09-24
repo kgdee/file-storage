@@ -23,7 +23,7 @@
     <div class="app container">
       <header class="navbar">
         <div class="main-content">
-          <div class="logo"><img src="assets/images/logo.png"> Public Drive</div>
+          <div class="logo"><img src="assets/images/logo.png" /> Public Drive</div>
 
           <div class="actions">
             <label class="search search-box">
@@ -73,11 +73,11 @@
             <i class="bi bi-trash"></i>
           </button>
           <label class="upload-files">
-            <i class="bi bi-file-earmark-arrow-up"></i>
-            <input type="file" accept="text/*" oninput="uploadFiles(this.files)" multiple hidden />
+            <i class="bi bi-upload"></i>
+            <input type="file" oninput="uploadFiles(this.files)" multiple hidden />
           </label>
           <button class="download-text" onclick="downloadItem()">
-            <i class="bi bi-file-earmark-arrow-down"></i>
+            <i class="bi bi-download"></i>
           </button>
         </div>
 
@@ -131,8 +131,8 @@
             </div>
 
             <div class="actions">
-              <button class="button submit-btn"><i class="bi bi-check2"></i> Submit</button>
-              <button class="button delete-btn" onclick="deleteItem()"><i class="bi bi-trash"></i> Delete</button>
+              <button class="button submit-btn">Submit</button>
+              <button class="button delete-btn" onclick="deleteItem()">Delete</button>
             </div>
           </div>
         </div>
@@ -157,10 +157,10 @@
             <textarea spellcheck="false" class="content-input" placeholder="Enter your text here"></textarea>
 
             <div class="actions">
-              <button class="button listen-btn" onclick="ItemModal.listenText()"><i class="bi bi-volume-up"></i> Listen</button>
-              <button class="button copy-btn" onclick="ItemModal.copyText()"><i class="bi bi-copy"></i> Copy</button>
-              <button class="button submit-btn"><i class="bi bi-check2"></i> Submit</button>
-              <button class="button delete-btn" onclick="deleteItem()"><i class="bi bi-trash"></i> Delete</button>
+              <button class="button listen-btn" onclick="ItemModal.listenText()">Listen</button>
+              <button class="button copy-btn" onclick="ItemModal.copyText()">Copy</button>
+              <button class="button submit-btn">Submit</button>
+              <button class="button delete-btn" onclick="deleteItem()">Delete</button>
             </div>
           </div>
         </div>
@@ -294,8 +294,16 @@
         <div class="toast hidden"></div>
       </main>
 
+      <div class="progress-modal modal hidden">
+        <div class="modal-content">
+          <p>Processing...</p>
+          <progress value="50" max="100"></progress>
+          <div class="status">50%</div>
+        </div>
+      </div>
+
       <div class="drop-modal">
-        <div class="msg-box">Upload a text file</div>
+        <div class="msg-box">Drop to upload files</div>
       </div>
     </div>
   </body>

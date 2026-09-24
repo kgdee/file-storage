@@ -35,19 +35,11 @@ const FolderModal = (() => {
     titleEl.textContent = currentItem ? `Edit ${currentItem.name}` : `Create new folder`;
     nameInput.value = currentItem?.name || createItemName(`New folder`);
 
-    submitBtn.innerHTML = currentItem ? `<i class="bi bi-check2"></i> Update` : `<i class="bi bi-plus-lg"></i> Create`;
+    submitBtn.innerHTML = currentItem ? `Update` : `Create`;
     deleteBtn.classList.toggle("hidden", !currentItem);
   }
 
   async function handleSubmit() {
-    if (iconInput.value) {
-      const file = iconInput.files[0];
-      if (file.size > 0.5 * 1024 * 1024) {
-        Toast.show("Upload failed: That file exceeds 500KB limit");
-        return;
-      }
-    }
-
     let itemData = {
       name: nameInput.value,
       icon: iconInput.value ? await getFileDataUrl(iconInput.files[0]) : currentItem?.icon || null,
